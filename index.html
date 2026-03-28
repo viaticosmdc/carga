@@ -1,0 +1,1785 @@
+
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Viáticos MDC</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#eef1f6;--sur:#fff;--sur2:#f6f8fb;--bor:#e0e4eb;--bor2:#c8cdd8;
+  --tx:#1b1f2a;--tx2:#545e72;--tx3:#8c95a6;
+  --bl:#1d4ed8;--blh:#1e40af;--bll:#eff6ff;--blb:#bfdbfe;
+  --gr:#047857;--grl:#ecfdf5;--grb:#a7f3d0;
+  --am:#b45309;--aml:#fffbeb;--amb:#fde68a;
+  --rd:#b91c1c;--rdl:#fef2f2;--rdb:#fca5a5;
+  --pu:#6d28d9;--pul:#f5f3ff;--pub:#ddd6fe;
+  --sh:0 1px 4px rgba(0,0,0,.06),0 6px 20px rgba(0,0,0,.07);
+  --sh2:0 4px 28px rgba(0,0,0,.12);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--tx);min-height:100vh;padding:28px 16px 60px}
+.wrap{max-width:840px;margin:0 auto}
+.hdr{background:linear-gradient(135deg,#1d4ed8,#1e3a8a);border-radius:18px 18px 0 0;padding:24px 30px 20px;color:#fff}
+.hdr h1{font-size:20px;font-weight:700;letter-spacing:-.3px}
+.hdr p{font-size:12px;opacity:.7;margin-top:3px}
+.tabs{background:#1e3a8a;display:flex;padding:0 18px;overflow-x:auto}
+.tb{padding:10px 16px;font-family:'DM Sans',sans-serif;font-size:12.5px;font-weight:500;
+  color:rgba(255,255,255,.55);background:transparent;border:none;cursor:pointer;
+  border-bottom:2.5px solid transparent;transition:all .15s;white-space:nowrap}
+.tb.on{color:#fff;border-bottom-color:#60a5fa}
+.tb:hover:not(.on){color:rgba(255,255,255,.8)}
+.tn{display:inline-flex;align-items:center;justify-content:center;
+  width:16px;height:16px;border-radius:50%;font-size:9px;font-weight:700;
+  background:rgba(255,255,255,.2);margin-right:5px}
+.tn.done{background:#22c55e;color:#fff}
+.card{background:var(--sur);border:1px solid var(--bor);border-top:none;
+  border-radius:0 0 16px 16px;box-shadow:var(--sh)}
+.cb{padding:24px 28px}
+.st{font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;
+  color:var(--tx3);margin-bottom:16px;padding-bottom:9px;border-bottom:1px solid var(--bor)}
+.fg{margin-bottom:14px}.fg0{margin-bottom:0}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+label{display:block;font-size:11px;font-weight:600;color:var(--tx2);margin-bottom:4px}
+input[type=text],input[type=number],input[type=date],select{
+  width:100%;padding:9px 12px;font-family:'DM Sans',sans-serif;font-size:13.5px;
+  color:var(--tx);background:var(--sur2);border:1.5px solid var(--bor);
+  border-radius:8px;outline:none;transition:border-color .15s,box-shadow .15s}
+input:focus,select:focus{border-color:var(--bl);box-shadow:0 0 0 3px rgba(29,78,216,.1);background:#fff}
+input.err{border-color:var(--rd)!important;background:var(--rdl)!important}
+select.err{border-color:var(--rd)!important}
+.em{font-size:11px;color:var(--rd);margin-top:4px;display:none;align-items:center;gap:4px}
+.em.on{display:flex}
+.tp{display:flex;align-items:center;gap:4px}
+.tp select{flex:1;text-align:center;padding:9px 3px}
+.tsep{font-weight:700;color:var(--tx3);font-size:14px;flex-shrink:0}
+.acw{position:relative}
+.acs{position:absolute;z-index:200;top:calc(100% + 3px);width:100%;background:#fff;
+  border:1.5px solid var(--bor2);border-radius:10px;box-shadow:var(--sh2);
+  max-height:200px;overflow-y:auto;display:none}
+.acs div{padding:8px 12px;font-size:13px;cursor:pointer;border-bottom:1px solid var(--bor)}
+.acs div:last-child{border-bottom:none}
+.acs div:hover{background:var(--bll);color:var(--bl)}
+.ckg{background:var(--aml);border:1px solid var(--amb);border-radius:10px;padding:12px 14px;margin-bottom:16px}
+.ckt{font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--am);margin-bottom:8px}
+.ckl{display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;color:var(--tx2);padding:2px 0}
+.ckl input{width:14px;height:14px;accent-color:var(--bl);cursor:pointer;flex-shrink:0}
+.escrow{display:flex;align-items:flex-end;gap:8px}
+.escrow input{flex:1}
+.escnote{font-size:10.5px;color:var(--tx3);margin-top:3px}
+/* buttons */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;
+  padding:9px 18px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;
+  border-radius:8px;border:none;cursor:pointer;transition:all .15s;white-space:nowrap}
+.bbl{background:var(--bl);color:#fff}.bbl:hover{background:var(--blh);transform:translateY(-1px)}
+.bbl:disabled{background:var(--bor2);color:var(--tx3);cursor:not-allowed;transform:none}
+.bgr{background:var(--gr);color:#fff;font-size:14px;padding:11px 22px}
+.bgr:hover{background:#065f46;transform:translateY(-1px)}
+.bgh{background:transparent;color:var(--tx2);border:1.5px solid var(--bor2)}
+.bgh:hover{background:var(--sur2);border-color:var(--tx3)}
+.brd{background:transparent;color:var(--rd);border:1.5px solid var(--rdb)}
+.brd:hover{background:var(--rdl)}
+.bpu{background:var(--pu);color:#fff}.bpu:hover{background:#5b21b6;transform:translateY(-1px)}
+.bam{background:var(--am);color:#fff}.bam:hover{background:#92400e;transform:translateY(-1px)}
+.bsm{padding:6px 12px;font-size:11.5px}
+.brow{display:flex;gap:9px;flex-wrap:wrap;margin-top:18px}
+/* banners */
+.abanner{background:linear-gradient(135deg,var(--bll),#f0f9ff);border:1.5px solid var(--blb);
+  border-radius:11px;padding:13px 16px;display:flex;align-items:center;gap:11px;margin-bottom:20px}
+.av{width:38px;height:38px;border-radius:50%;background:var(--bl);color:#fff;
+  display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;flex-shrink:0}
+.av-n{font-size:13.5px;font-weight:700}.av-s{font-size:11.5px;color:var(--tx2);margin-top:2px}
+.dir-badge{display:inline-flex;align-items:center;gap:6px;background:var(--pul);
+  border:1px solid var(--pub);border-radius:20px;padding:3px 10px;font-size:11.5px;color:var(--pu);font-weight:600}
+/* result */
+.rbox{background:var(--grl);border:1.5px solid var(--grb);border-radius:12px;padding:20px;display:none;margin-top:20px}
+.rbox.on{display:block}
+.rhdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.rbadge{font-size:10.5px;font-weight:600;background:#d1fae5;color:var(--gr);border-radius:20px;padding:2px 9px}
+.rrow{display:flex;justify-content:space-between;font-size:12.5px;padding:4px 0;border-bottom:1px solid rgba(0,0,0,.05)}
+.rrow:last-of-type{border:none}
+.rl{color:var(--tx2)}.rv{font-weight:600}
+.rtw{border-top:1.5px solid var(--grb);margin-top:12px;padding-top:12px;
+  display:flex;justify-content:space-between;align-items:center}
+.rtot{font-size:30px;font-weight:700;color:var(--gr);font-family:'DM Mono',monospace}
+.rdet{font-size:11px;color:var(--tx3);margin-top:10px;background:rgba(255,255,255,.65);
+  border-radius:7px;padding:8px 12px;line-height:1.6}
+.ibar{margin-top:16px;padding-top:14px;border-top:1.5px solid var(--grb);
+  display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.ibar p{font-size:12.5px;color:var(--tx2)}
+.ovwarn{background:var(--rdl);border:1.5px solid var(--rdb);border-radius:9px;
+  padding:10px 14px;font-size:12.5px;color:var(--rd);margin-top:12px;display:none;line-height:1.6}
+.ovwarn.on{display:block}
+/* tables */
+.empty{text-align:center;padding:32px 20px;color:var(--tx3);font-size:12.5px;
+  background:var(--sur2);border-radius:9px;border:1.5px dashed var(--bor2);line-height:1.7}
+.tbl{width:100%;border-collapse:collapse;font-size:12.5px}
+.tbl th{text-align:left;padding:8px 10px;font-size:10px;font-weight:700;
+  letter-spacing:.5px;text-transform:uppercase;color:var(--tx3);
+  background:var(--sur2);border-bottom:1.5px solid var(--bor)}
+.tbl th:first-child{border-radius:7px 0 0 0}.tbl th:last-child{border-radius:0 7px 0 0;text-align:center}
+.tbl td{padding:9px 10px;border-bottom:1px solid var(--bor);vertical-align:middle}
+.tbl tr:hover td{background:#fafbff}
+.tbl .totr td{font-weight:700;background:var(--bll);color:var(--bl)}
+.mono{font-family:'DM Mono',monospace;font-weight:600}
+.gmono{font-family:'DM Mono',monospace;font-weight:700;color:var(--gr)}
+.pill{display:inline-flex;font-size:10px;font-weight:700;background:#e0e7ff;color:#3730a3;border-radius:20px;padding:2px 7px}
+.dbtn{background:none;border:none;cursor:pointer;color:var(--tx3);padding:3px 5px;border-radius:4px;transition:all .1s}
+.dbtn:hover{color:var(--rd);background:var(--rdl)}
+.divider{border:none;border-top:1px solid var(--bor);margin:20px 0}
+.panel{background:var(--sur2);border:1px solid var(--bor);border-radius:9px;padding:14px 16px}
+.tc{display:none}.tc.on{display:block}
+.hidden{display:none!important}
+/* dir management */
+.dir-card{background:#fff;border:1.5px solid var(--pub);border-radius:10px;overflow:hidden;margin-bottom:10px}
+.dir-card-hdr{background:var(--pu);color:#fff;padding:10px 14px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none}
+.dir-card-hdr .dc-name{font-size:13px;font-weight:700}
+.dir-card-hdr .dc-meta{font-size:11px;opacity:.8}
+.dir-card-body{padding:12px 14px;display:none}
+.dir-card-body.open{display:block}
+.agent-row{display:flex;align-items:center;justify-content:space-between;
+  padding:7px 10px;background:var(--sur2);border-radius:7px;margin-bottom:6px;font-size:12.5px}
+.agent-row:last-child{margin-bottom:0}
+.agent-row .ainfo{flex:1}
+.agent-row .aname{font-weight:600}
+.agent-row .adni{font-size:11px;color:var(--tx3);font-family:'DM Mono',monospace}
+/* period banner */
+.period-banner{background:linear-gradient(135deg,var(--aml),#fef9ec);border:1.5px solid var(--amb);
+  border-radius:10px;padding:12px 16px;display:flex;align-items:center;justify-content:space-between;
+  gap:12px;margin-bottom:20px;flex-wrap:wrap}
+.period-banner .plabel{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--am)}
+.period-banner .pval{font-size:15px;font-weight:700;color:var(--tx)}
+.period-edit{display:flex;align-items:center;gap:8px}
+
+/* ════ PRINT ════ */
+.pdoc{background:#fff;border:1px solid var(--bor);border-radius:13px;padding:36px 40px;box-shadow:var(--sh)}
+.pd-title{text-align:center;margin-bottom:20px;padding-bottom:14px;border-bottom:2px solid #1a1d23}
+.pd-title h2{font-size:15px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px}
+.pd-title .pd-period{font-size:13px;font-weight:700;color:#1d4ed8;margin-top:4px}
+.pd-title .pd-sub{font-size:11px;color:#666;margin-top:2px}
+.pd-dir-hdr{background:#1d4ed8;color:#fff;padding:8px 14px;border-radius:6px;
+  font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:0}
+.pd-agent-block{margin-bottom:20px}
+.pd-agent-info{display:grid;grid-template-columns:110px 1fr;gap:16px;
+  background:#f7f8fa;border:1px solid #dde;padding:10px 14px;margin-bottom:0;border-radius:0}
+.pd-agent-info.first{border-radius:0}
+.pd-field label{font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:#777;display:block;margin-bottom:2px}
+.pd-field .fv{font-size:13px;font-weight:700;color:#1b1f2a}
+.pd-tbl{width:100%;border-collapse:collapse;font-size:11.5px;margin-bottom:0}
+.pd-tbl th{border:1.5px solid #333;padding:6px 8px;font-size:10px;font-weight:700;
+  text-transform:uppercase;background:#e8e8e8;text-align:center;letter-spacing:.3px}
+.pd-tbl td{border:1px solid #bbb;padding:6px 8px;text-align:center;vertical-align:middle}
+.pd-tbl td.tl{text-align:left;font-weight:500}
+.pd-tbl .stot td{background:#dbeafe;font-weight:700;font-size:12px;border-top:1.5px solid #93c5fd}
+.pd-dir-section{margin-bottom:22px}
+.pd-dir-total{margin-top:10px;background:#1e3a8a;color:#fff;border-radius:7px;
+  padding:10px 16px;display:flex;justify-content:space-between;align-items:center}
+.pd-dir-total span:first-child{font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.4px}
+.pd-dir-total span:last-child{font-size:19px;font-weight:700;font-family:'DM Mono',monospace}
+.pd-grand{margin-top:8px;background:#111827;color:#fff;border-radius:7px;
+  padding:11px 16px;display:flex;justify-content:space-between;align-items:center}
+.pd-grand span:first-child{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.5px}
+.pd-grand span:last-child{font-size:20px;font-weight:700;font-family:'DM Mono',monospace}
+.pd-sig-wrap{margin-top:32px;display:flex;justify-content:flex-end}
+.pd-sig .line{border-top:1.5px solid #333;width:210px;margin:0 auto;padding-top:6px;
+  font-size:10.5px;color:#444;text-transform:uppercase;letter-spacing:.5px;font-weight:600;text-align:center}
+.pd-note{margin-top:12px;font-size:9.5px;color:#aaa;text-align:center;font-style:italic;
+  border-top:1px solid #e8e8e8;padding-top:8px}
+
+@media print{
+  @page{margin:10mm 12mm}
+  body{background:#fff;padding:0;margin:0}
+  .wrap > *{display:none!important}
+  .card{display:block!important}
+  .tc{display:none!important}
+  #tab3{display:block!important}
+  #tab3 .st,#tab3 .brow,#tab3 .no-print{display:none!important}
+  #tab3 .cb{padding:0!important}
+  .pdoc{display:block!important;box-shadow:none!important;border:none!important;border-radius:0!important;padding:0!important}
+  .pd-dir-total,.pd-grand,.pd-dir-hdr,.pd-agent-info{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  html,body{height:auto!important;overflow:visible!important}
+}
+#modalOverlay.open{display:flex!important}
+input[type=radio]{accent-color:var(--bl)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<div class="hdr">
+  <h1>Viaticos MDC</h1>
+  <p>Sistema de liquidación según Decreto 388/07 — Provincia de Buenos Aires</p>
+</div>
+
+<div class="tabs no-print">
+  <button class="tb on"  id="tB0" onclick="goTab(0)"><span class="tn" id="tn0">1</span>Agente</button>
+  <button class="tb" id="tB1" onclick="goTab(1)"><span class="tn" id="tn1">2</span>Calcular Viaje</button>
+  <button class="tb" id="tB2" onclick="goTab(2)"><span class="tn" id="tn2">3</span>Liquidación</button>
+  <button class="tb" id="tB3" onclick="goTab(3)"><span class="tn" id="tn3">🖨</span>Imprimir</button>
+  <button class="tb" id="tB4" onclick="goTab(4)"><span class="tn" id="tn4">⚙</span>Direcciones</button>
+</div>
+
+<div class="card no-print">
+
+  <!-- ══════════ TAB 0: AGENTE ══════════ -->
+  <div id="tab0" class="tc on">
+    <div class="cb">
+      <p class="st">Paso 1 — Identificación del Agente</p>
+
+      <!-- Selección de Dirección -->
+      <div class="fg">
+        <label>Dirección / Repartición <span style="color:var(--rd)">*</span></label>
+        <select id="aDirSel" onchange="onDirSel()">
+          <option value="">— Seleccionar dirección (debe estar dada de alta) —</option>
+        </select>
+        <div class="em on" id="eDirNoHay" style="display:none">
+          No hay direcciones cargadas. Vaya a <b>⚙ Direcciones</b> para agregar una primero.
+        </div>
+        <div class="em" id="eDirReq">Debe seleccionar una dirección.</div>
+      </div>
+
+      <!-- Selector de agente existente (se muestra al elegir dirección con agentes) -->
+      <div id="agExistenteWrap" style="display:none;margin-bottom:14px">
+        <div style="background:var(--grl);border:1.5px solid var(--grb);border-radius:10px;padding:13px 15px">
+          <p style="font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--gr);margin-bottom:9px">
+            👥 Agentes ya cargados en esta dirección — seleccioná uno o ingresá uno nuevo
+          </p>
+          <select id="agExistenteSel" onchange="onAgExistente()" style="background:#fff">
+            <option value="">— Ingresar nuevo agente —</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="g2" style="margin-bottom:14px">
+        <div class="fg fg0">
+          <label>Apellido y Nombre <span style="color:var(--rd)">*</span></label>
+          <input type="text" id="aNom" placeholder="Ej: PÉREZ JUAN CARLOS"
+            oninput="this.value=this.value.toUpperCase();chkAg()" autocomplete="off">
+        </div>
+        <div class="fg fg0">
+          <label>DNI (8 dígitos) <span style="color:var(--rd)">*</span></label>
+          <input type="text" id="aDNI" placeholder="Ej: 32456789" maxlength="8"
+            oninput="this.value=this.value.replace(/\D/g,'');chkAg()" autocomplete="off">
+          <div class="em" id="eDNI">El DNI debe tener exactamente 8 dígitos.</div>
+          <div class="em" id="eDNIDup">Este DNI ya está cargado en otra dirección.</div>
+        </div>
+      </div>
+
+      <div id="agPrev" class="abanner hidden">
+        <div class="av" id="agAv">?</div>
+        <div style="flex:1">
+          <div class="av-n" id="agPN">—</div>
+          <div class="av-s" id="agPS">—</div>
+        </div>
+      </div>
+
+      <div class="brow">
+        <button class="btn bbl" id="btnOk" onclick="confirmarAgente()" disabled>Confirmar y continuar →</button>
+        <button class="btn bgh bsm" onclick="goTab(4)">⚙ Gestionar Direcciones</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════ TAB 1: CALCULADORA ══════════ -->
+  <div id="tab1" class="tc">
+    <div class="cb">
+
+      <div class="abanner" id="cBanner">
+        <div class="av" id="cAv">?</div>
+        <div style="flex:1">
+          <div class="av-n" id="cName">—</div>
+          <div class="av-s" id="cSub">—</div>
+        </div>
+        <button class="btn bgh bsm no-print" onclick="goTab(0)">Editar</button>
+      </div>
+
+      <p class="st">Paso 2 — Datos del Viaje</p>
+
+      <div class="fg">
+        <label>Localidad de Destino <span style="color:var(--rd)">*</span></label>
+        <div class="acw">
+          <input type="text" id="locIn" placeholder="Escriba para buscar localidad..."
+            oninput="filterLoc()" onfocus="showSug()" autocomplete="off">
+          <div class="acs" id="locSug"></div>
+        </div>
+        <div class="em" id="eExcl">
+          <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          Localidad excluida. No corresponde liquidar viáticos (Decreto 388/07).
+        </div>
+      </div>
+
+      <div class="g2">
+        <div class="fg"><label>Fecha de Salida <span style="color:var(--rd)">*</span></label>
+          <input type="date" id="fS" onchange="chkOverlap();chkCasoEspecial()"></div>
+        <div class="fg"><label>Hora de Salida</label>
+          <div class="tp"><select id="hSH" onchange="chkCasoEspecial()"></select><span class="tsep">:</span>
+          <select id="hSM" onchange="chkCasoEspecial()"><option>00</option><option>10</option><option>20</option><option>30</option><option>40</option><option>50</option></select></div></div>
+        <div class="fg"><label>Fecha de Regreso <span style="color:var(--rd)">*</span></label>
+          <input type="date" id="fR" onchange="chkOverlap();chkCasoEspecial()"></div>
+        <div class="fg"><label>Hora de Regreso</label>
+          <div class="tp"><select id="hRH" onchange="chkCasoEspecial()"></select><span class="tsep">:</span>
+          <select id="hRM" onchange="chkCasoEspecial()"><option>00</option><option>10</option><option>20</option><option>30</option><option>40</option><option>50</option></select></div></div>
+      </div>
+
+      <div class="ovwarn" id="ovWarn"></div>
+
+      <div class="fg">
+        <label>Valor Escala Vigente ($)</label>
+        <div class="escrow">
+          <input type="number" id="escala" step="0.01" min="1" value="65140">
+          <button class="btn bgh bsm" onclick="document.getElementById('escala').value=65140">↺</button>
+        </div>
+        <p class="escnote">Escala vigente: $65.140,00 — Modificable ante actualización salarial.</p>
+      </div>
+
+      <div class="ckg" id="ckgWrap">
+        <p class="ckt">⚠ Casos Especiales (opcional)</p>
+        <label class="ckl"><input type="radio" name="casoEspecial" id="chkNinguno" value="ninguno" checked onchange="chkCasoEspecial()"> Sin caso especial</label>
+        <label class="ckl" id="lblAloj"><input type="radio" name="casoEspecial" id="chkAloj" value="aloj" onchange="chkCasoEspecial()"> Alojamiento cubierto por el organismo → 75%</label>
+        <label class="ckl" id="lblComida"><input type="radio" name="casoEspecial" id="chkComida" value="comida" onchange="chkCasoEspecial()"> Alojamiento Y comida cubiertos → 25%</label>
+        <div id="ckgWarning" style="display:none;margin-top:8px;font-size:11.5px;color:var(--am);background:rgba(180,83,9,.07);border-radius:6px;padding:6px 10px;line-height:1.6">
+          ⚠ Los casos especiales solo aplican a viajes de <strong>un mismo día</strong>, con salida <strong>antes de las 12:00</strong> y regreso <strong>después de las 21:30</strong>.
+        </div>
+      </div>
+
+      <div class="brow">
+        <button class="btn bbl" onclick="calcular()">
+          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="6" x2="16" y2="6"/><line x1="8" y1="10" x2="12" y2="10"/><line x1="8" y1="14" x2="10" y2="14"/></svg>
+          Calcular Viático
+        </button>
+        <button class="btn bgh" onclick="limpiarCalc()">Limpiar</button>
+      </div>
+
+      <div class="rbox" id="resBox">
+        <div class="rhdr">
+          <span style="font-size:12.5px;font-weight:700;color:var(--gr)">✓ Resultado del Cálculo</span>
+          <span class="rbadge" id="rTipo">—</span>
+        </div>
+        <div class="rrow"><span class="rl">Localidad</span><span class="rv" id="rLoc">—</span></div>
+        <div class="rrow"><span class="rl">Días de comisión</span><span class="rv" id="rDias">—</span></div>
+        <div class="rrow"><span class="rl">Porcentaje aplicado</span><span class="rv" id="rPct" style="color:var(--gr)">—</span></div>
+        <div class="rrow"><span class="rl">Valor escala</span><span class="rv" id="rEsc">—</span></div>
+        <div class="rtw">
+          <span style="font-weight:700;font-size:14px">Total a liquidar:</span>
+          <span class="rtot" id="rTot">$ 0</span>
+        </div>
+        <p class="rdet" id="rDet"></p>
+        <div class="ibar">
+          <p>¿Agregar este viaje a la liquidación?</p>
+          <button class="btn bgr" onclick="ingresarViaje()">
+            <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Ingresar Viaje
+          </button>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+      <div class="panel">
+        <p style="font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--tx3);margin-bottom:10px">Referencia — Decreto 388/07</p>
+        <div class="g2" style="gap:12px">
+          <div>
+            <p style="font-size:11.5px;font-weight:600;color:var(--tx2);margin-bottom:4px">Viaje de un día:</p>
+            <p style="font-size:11.5px;color:var(--tx2);line-height:1.8">
+              <b style="color:var(--bl)">40%</b> — Regresa antes de las 20:30hs<br>
+              <b style="color:var(--bl)">70%</b> — Regresa después de las 20:30hs
+            </p>
+          </div>
+          <div>
+            <p style="font-size:11.5px;font-weight:600;color:var(--tx2);margin-bottom:4px">Viaje de más de un día:</p>
+            <p style="font-size:11.5px;color:var(--tx2);line-height:1.8">
+              <b style="color:var(--bl)">100%</b> — Sale &lt;14hs / Regresa &gt;20:30hs<br>
+              <b style="color:var(--bl)">50%</b> — Sale 14–20hs / Regresa 12–20:30hs<br>
+              <b style="color:var(--bl)">20%</b> — Sale &gt;20hs / Regresa &lt;12hs
+            </p>
+          </div>
+        </div>
+        <p style="font-size:10.5px;color:var(--tx3);margin-top:8px;padding-top:8px;border-top:1px solid var(--bor)">
+          Localidades excluidas: Capital Federal, La Plata, Berisso, Ensenada y todo el AMBA.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════ TAB 2: LIQUIDACIÓN ══════════ -->
+  <div id="tab2" class="tc">
+    <div class="cb">
+      <p class="st">Resumen de Liquidación — Todos los Agentes</p>
+
+      <!-- Período -->
+      <div class="period-banner">
+        <div>
+          <div class="plabel">Período de liquidación</div>
+          <div class="pval" id="periodoDisplay">—</div>
+        </div>
+        <div class="period-edit">
+          <input type="month" id="periodoInput" style="width:auto;padding:6px 10px;font-size:13px" onchange="onPeriodoChange()">
+          <button class="btn bam bsm" onclick="resetPeriodo()">↺ Mes actual</button>
+        </div>
+      </div>
+
+      <!-- Filtros -->
+      <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:18px;align-items:flex-end">
+        <div style="flex:1;min-width:180px">
+          <label style="display:block;font-size:11px;font-weight:600;color:var(--tx2);margin-bottom:4px">Filtrar por Dirección</label>
+          <select id="filtroDirLiq" onchange="renderLiq()" style="width:100%;padding:8px 10px;font-size:13px;background:var(--sur2);border:1.5px solid var(--bor);border-radius:8px;color:var(--tx)">
+            <option value="">Todas las direcciones</option>
+          </select>
+        </div>
+        <div style="flex:1;min-width:180px">
+          <label style="display:block;font-size:11px;font-weight:600;color:var(--tx2);margin-bottom:4px">Filtrar por Mes</label>
+          <select id="filtroMesLiq" onchange="renderLiq()" style="width:100%;padding:8px 10px;font-size:13px;background:var(--sur2);border:1.5px solid var(--bor);border-radius:8px;color:var(--tx)">
+            <option value="">Mes del período actual</option>
+          </select>
+        </div>
+        <button class="btn bgh bsm" onclick="limpiarFiltrosLiq()" style="flex-shrink:0;height:36px;align-self:flex-end">✕ Limpiar filtros</button>
+      </div>
+
+      <!-- Resumen de filtros activos -->
+      <div id="lFiltroInfo" style="display:none;background:var(--bll);border:1px solid var(--blb);border-radius:8px;padding:9px 13px;font-size:12px;color:var(--bl);margin-bottom:14px;font-weight:500"></div>
+
+      <div id="lEmpty" class="empty">
+        <svg width="34" height="34" fill="none" stroke="currentColor" stroke-width="1.3" viewBox="0 0 24 24" style="margin:0 auto 9px;display:block">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>
+          <line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/>
+        </svg>
+        Sin viajes para los filtros seleccionados.<br>Vaya a <strong>Calcular Viaje</strong> y presione <strong>"Ingresar Viaje"</strong>.
+      </div>
+
+      <div id="lTableWrap" class="hidden">
+        <!-- tabla generada dinámicamente por renderLiq() -->
+        <div id="lTablaContenido"></div>
+      </div>
+
+      <div class="brow" id="lBtns" style="display:none">
+        <button class="btn bbl" onclick="goTab(1)">+ Agregar otro viaje</button>
+        <button class="btn bpu" onclick="nuevoAgente()">👤 Cargar otro agente</button>
+        <button class="btn bgh" onclick="verDoc();goTab(3)">
+          <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+          Ver e Imprimir
+        </button>
+        <button class="btn brd bsm" onclick="reiniciar()">🗑 Reiniciar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════ TAB 3: IMPRIMIR ══════════ -->
+  <div id="tab3" class="tc">
+    <div class="cb">
+      <p class="st">🖨 Vista previa — Solicitud de Anticipos de Viáticos</p>
+      <div class="brow no-print" style="margin-bottom:18px">
+        <button id="btnPrint" class="btn bbl" onclick="window.print()">
+          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+          Imprimir / Guardar PDF
+        </button>
+        <button class="btn bgh" onclick="goTab(2)">← Volver a Liquidación</button>
+      </div>
+      <div class="pdoc" id="printDoc"><!-- dinámico --></div>
+    </div>
+  </div>
+
+  <!-- ══════════ TAB 4: GESTIÓN DIRECCIONES ══════════ -->
+  <div id="tab4" class="tc">
+    <div class="cb">
+      <p class="st">⚙ Gestión de Direcciones y Agentes</p>
+      <p style="font-size:12.5px;color:var(--tx2);margin-bottom:18px;line-height:1.6">
+        Cada dirección actúa como una repartición independiente. Los agentes se asocian a una dirección específica y su listado queda guardado para el reporte.
+      </p>
+
+      <!-- Agregar dirección -->
+      <div style="background:var(--bll);border:1.5px solid var(--blb);border-radius:11px;padding:16px 18px;margin-bottom:20px">
+        <p style="font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--bl);margin-bottom:10px">Nueva Dirección</p>
+        <div style="display:flex;gap:9px;align-items:flex-end">
+          <div style="flex:1">
+            <label>Nombre de la Dirección / Repartición</label>
+            <input type="text" id="newDirIn" placeholder="Ej: DIRECCIÓN DE RECURSOS HUMANOS"
+              oninput="this.value=this.value.toUpperCase()"
+              onkeydown="if(event.key==='Enter')addDir()" autocomplete="off">
+          </div>
+          <button class="btn bbl" onclick="addDir()">+ Agregar</button>
+        </div>
+        <div class="em" id="eDirDup" style="margin-top:7px">Ya existe una dirección con ese nombre.</div>
+      </div>
+
+      <!-- Listado de direcciones -->
+      <div id="dirListWrap">
+        <p style="font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--tx3);margin-bottom:10px">
+          Direcciones cargadas (<span id="dirCount">0</span>)
+        </p>
+        <div id="dirListEl"></div>
+        <div id="dirEmptyMsg" class="empty" style="padding:18px">
+          <svg width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.4" viewBox="0 0 24 24" style="margin:0 auto 7px;display:block"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+          Sin direcciones cargadas. Agregá la primera arriba.
+        </div>
+      </div>
+
+      <!-- Guardado automático -->
+      <div style="margin-top:20px;padding-top:16px;border-top:1px solid var(--bor)">
+        <p style="font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--tx3);margin-bottom:12px">💾 Guardado de datos</p>
+        <div style="background:var(--grl);border:1.5px solid var(--grb);border-radius:10px;padding:14px 16px;margin-bottom:14px">
+          <p style="font-size:13px;font-weight:600;color:var(--gr);margin-bottom:6px">✅ Los datos se guardan automáticamente</p>
+          <p style="font-size:12.5px;color:var(--tx2);line-height:1.7">
+            Cada vez que agregás una dirección, un agente o un viaje, todo queda guardado en este navegador automáticamente. La próxima vez que abras el archivo en <b>este mismo navegador y computadora</b>, todos los datos van a seguir estando.
+          </p>
+        </div>
+        <div style="background:var(--aml);border:1.5px solid var(--amb);border-radius:10px;padding:14px 16px;margin-bottom:14px">
+          <p style="font-size:13px;font-weight:600;color:var(--am);margin-bottom:6px">⚠ Importante</p>
+          <p style="font-size:12.5px;color:var(--tx2);line-height:1.7">
+            Cada persona guarda sus propios datos en <b>su computadora y navegador</b>. Los datos de un usuario no se ven en el de otro — eso lo vamos a resolver en la versión web.
+          </p>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px">
+          <p style="font-size:11.5px;color:var(--tx3)">Último guardado automático: <span id="ultimoGuardado" style="font-weight:600;color:var(--tx2)">—</span></p>
+          <button class="btn brd bsm" onclick="borrarDatosGuardados()">🗑 Borrar todos los datos guardados</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /card -->
+
+
+
+<!-- ══════════ MODAL VIAJE ══════════ -->
+<div id="modalOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:1000;align-items:center;justify-content:center;padding:16px">
+  <div style="background:#fff;border-radius:16px;max-width:500px;width:100%;box-shadow:0 8px 40px rgba(0,0,0,.2);overflow:hidden">
+    <div id="modalHdr" style="background:linear-gradient(135deg,#1d4ed8,#1e3a8a);padding:16px 20px;display:flex;align-items:center;justify-content:space-between">
+      <span id="modalTitulo" style="color:#fff;font-weight:700;font-size:14px">Detalle del Viaje</span>
+      <button onclick="cerrarModal()" style="background:rgba(255,255,255,.2);border:none;color:#fff;border-radius:6px;padding:4px 10px;cursor:pointer;font-size:13px">✕</button>
+    </div>
+    <div id="modalCuerpo" style="padding:20px"></div>
+  </div>
+</div>
+
+</div><!-- /wrap -->
+
+<script>
+/* ══════════════════════════════════════════
+   CONSTANTES
+══════════════════════════════════════════ */
+const ESCALA_DEFAULT = 65140;
+
+const MESES = ['Enero','Febrero','Marzo','Abril','Mayo','Junio',
+               'Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+
+const LOCS = [
+  'Adolfo Alsina','Alberti','Arrecifes','Ayacucho','Azul','Bahía Blanca','Balcarce','Baradero',
+  'Benito Juárez','Bolívar','Bragado','Brandsen','Campana','Cañuelas','Capitán Sarmiento',
+  'Carlos Casares','Carlos Tejedor','Carmen de Areco','Castelli','Chacabuco','Chascomús',
+  'Chivilcoy','Colón','Coronel Dorrego','Coronel Pringles','Coronel Rosales','Coronel Suárez',
+  'Daireaux','Dolores','Escobar','Exaltación de la Cruz','Florentino Ameghino',
+  'General Alvarado','General Alvear','General Arenales','General Belgrano','General Guido',
+  'General La Madrid','General Las Heras','General Lavalle','General Madariaga',
+  'General Pinto','General Pueyrredón','General Rodríguez','General Viamonte','General Villegas',
+  'Guaminí','Henderson','Junín','La Costa','Laprida','Las Flores','Leandro N. Alem','Lincoln',
+  'Lobería','Lobos','Luján','Magdalena','Maipú','Malvinas Argentinas','Mar Chiquita',
+  'Marcos Paz','Mercedes','Monte','Monte Hermoso','Navarro','Necochea','Nueve de Julio',
+  'Olavarría','Patagones','Pehuajó','Pellegrini','Pergamino','Pila','Pilar','Pinamar',
+  'Puan','Punta Indio','Ramallo','Rauch','Rivadavia','Rojas','Roque Pérez','Saavedra',
+  'Saladillo','Salliqueló','Salto','San Andrés de Giles','San Antonio de Areco','San Cayetano',
+  'San Nicolás','San Pedro','Suipacha','Tandil','Tapalqué','Tordillo','Tornquist',
+  'Trenque Lauquen','Tres Arroyos','Tres Lomas','Veinticinco de Mayo','Villa Gesell',
+  'Villarino','Zárate','Catamarca','Chaco','Chubut','Córdoba','Corrientes','Entre Ríos',
+  'Formosa','Jujuy','La Pampa','La Rioja','Mendoza','Misiones','Neuquén','Río Negro',
+  'Salta','San Juan','San Luis','Santa Cruz','Santa Fe','Santiago del Estero',
+  'Tierra del Fuego','Tucumán'
+];
+
+const EXCL = [
+  'capital federal','almirante brown','avellaneda','berazategui','berisso','ensenada',
+  'esteban echeverria','esteban echeverría','ezeiza','florencio varela','general san martin',
+  'general san martín','hurlingham','ituzaingo','ituzaingó','jose c. paz','jose c paz',
+  'la matanza','la plata','lomas de zamora','lanus','lanús','merlo','moreno','moron','morón',
+  'presidente peron','presidente perón','quilmes','san fernando','san isidro','san miguel',
+  'san vicente','tigre','tres de febrero','vicente lopez','vicente lópez',
+  'aldo bonzi','ciudad evita','gonzalez catan','isidro casanova','la tablada',
+  'rafael castillo','ramos mejia','ramos mejía','san justo','tapiales',
+  'villa luzuriaga','villa madero','virrey del pino'
+];
+
+/* ══════════════════════════════════════════
+   ESTADO GLOBAL
+
+   direcciones = [ { nombre:string } ]
+   agentes     = [ { dni, nom, dir, obs, viajes:[] } ]
+     → dni es clave única
+     → dir es el nombre de la dirección (string, uppercase)
+   activoDNI   = DNI del agente en el formulario de cálculo
+   periodo     = { year:number, month:number (0-based) }
+══════════════════════════════════════════ */
+let direcciones  = [];
+let agentes      = [];   // todos los agentes, de todas las direcciones
+let activoDNI    = null; // DNI del agente activo en la calculadora
+let ultimoCalculo= null;
+let periodo      = null; // { year, month }
+
+/* ══════════════════════════════════════════
+   INIT
+══════════════════════════════════════════ */
+window.addEventListener('DOMContentLoaded', () => {
+  const hoy = new Date();
+  periodo = { year: hoy.getFullYear(), month: hoy.getMonth() };
+  syncPeriodoUI();
+
+  const todayStr = hoy.toISOString().split('T')[0];
+  document.getElementById('fS').value = todayStr;
+  document.getElementById('fR').value = todayStr;
+
+  ['hSH','hRH'].forEach((id,i) => {
+    const s = document.getElementById(id);
+    for(let h=0;h<24;h++){
+      const o=document.createElement('option');
+      o.value=o.textContent=p2(h);
+      if(i===0&&h===8)  o.selected=true;
+      if(i===1&&h===18) o.selected=true;
+      s.appendChild(o);
+    }
+  });
+
+  document.addEventListener('click', e => {
+    if(!e.target.closest('.acw')) document.getElementById('locSug').style.display='none';
+  });
+
+  // Load saved data from localStorage
+  const loaded = cargarDatos();
+  renderDirSelect();
+  renderDirSelectPrint();
+  renderDirList();
+  if(loaded) syncPeriodoUI();
+});
+
+/* ══════════════════════════════════════════
+   PERÍODO
+══════════════════════════════════════════ */
+function syncPeriodoUI(){
+  const { year, month } = periodo;
+  document.getElementById('periodoDisplay').textContent = `${MESES[month]} ${year}`;
+  // Set month input value  yyyy-MM
+  document.getElementById('periodoInput').value = `${year}-${p2(month+1)}`;
+}
+function onPeriodoChange(){
+  const val = document.getElementById('periodoInput').value;
+  if(!val) return;
+  const [y,m] = val.split('-').map(Number);
+  periodo = { year:y, month:m-1 };
+  syncPeriodoUI();
+  renderLiq();
+  guardarDatos();
+}
+function resetPeriodo(){
+  const hoy = new Date();
+  periodo = { year:hoy.getFullYear(), month:hoy.getMonth() };
+  syncPeriodoUI();
+}
+function periodoStr(){ return `${MESES[periodo.month]} ${periodo.year}`; }
+
+/* ══════════════════════════════════════════
+   TABS
+══════════════════════════════════════════ */
+function goTab(n){
+  [0,1,2,3,4].forEach(i=>{
+    document.getElementById('tab'+i).classList.toggle('on',i===n);
+    document.getElementById('tB'+i).classList.toggle('on',i===n);
+  });
+  if(n===2) renderLiq();
+  if(n===3) { syncPrintTab(); generarYMostrarDoc(); }
+  if(n===4) renderDirList();
+}
+
+/* ══════════════════════════════════════════
+   GESTIÓN DE DIRECCIONES
+══════════════════════════════════════════ */
+function addDir(){
+  const inp=document.getElementById('newDirIn');
+  const val=inp.value.trim().toUpperCase();
+  const err=document.getElementById('eDirDup');
+  if(!val) return;
+  if(direcciones.some(d=>d.nombre===val)){ err.classList.add('on'); return; }
+  err.classList.remove('on');
+  direcciones.push({ nombre:val });
+  direcciones.sort((a,b)=>a.nombre.localeCompare(b.nombre));
+  inp.value='';
+  renderDirList();
+  renderDirSelect();
+  guardarDatos();
+}
+
+function delDir(idx){
+  const d=direcciones[idx];
+  const agDir=agentes.filter(a=>a.dir===d.nombre);
+  if(agDir.length){
+    if(!confirm(`La dirección "${d.nombre}" tiene ${agDir.length} agente(s) asociado(s).\n¿Eliminar la dirección y todos sus agentes?`)) return;
+    agentes=agentes.filter(a=>a.dir!==d.nombre);
+  } else {
+    if(!confirm(`¿Eliminar la dirección "${d.nombre}"?`)) return;
+  }
+  direcciones.splice(idx,1);
+  renderDirList();
+  renderDirSelect();
+  // If the deleted dir was selected in the form, reset
+  if(document.getElementById('aDirSel').value===''){
+    document.getElementById('agExistenteWrap').style.display='none';
+    document.getElementById('agExistenteSel').innerHTML='<option value="">— Ingresar nuevo agente —</option>';
+  }
+  guardarDatos();
+  renderLiq();
+}
+
+function renderDirList(){
+  const wrap=document.getElementById('dirListEl');
+  const empty=document.getElementById('dirEmptyMsg');
+  document.getElementById('dirCount').textContent=direcciones.length;
+  if(!direcciones.length){ wrap.innerHTML=''; empty.style.display='block'; return; }
+  empty.style.display='none';
+
+  wrap.innerHTML=direcciones.map((d,di)=>{
+    const ags=agentes.filter(a=>a.dir===d.nombre);
+    const total=ags.reduce((s,a)=>s+a.viajes.reduce((sv,v)=>sv+v.total,0),0);
+    return `
+    <div class="dir-card">
+      <div class="dir-card-hdr" onclick="toggleDirCard(${di})">
+        <div>
+          <div class="dc-name">🏢 ${d.nombre}</div>
+          <div class="dc-meta">${ags.length} agente(s) · ${fmtARS(total)}</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <span id="dcarrow${di}" style="color:rgba(255,255,255,.7);font-size:12px">▼</span>
+          <button class="btn brd bsm" onclick="event.stopPropagation();delDir(${di})" style="color:#fff;border-color:rgba(255,255,255,.4);padding:4px 10px;font-size:11px">Eliminar</button>
+        </div>
+      </div>
+      <div class="dir-card-body" id="dcbody${di}">
+        ${ags.length===0
+          ? `<p style="font-size:12px;color:var(--tx3);font-style:italic;padding:6px 0">Sin agentes asociados aún.</p>`
+          : ags.map(ag=>`
+            <div class="agent-row">
+              <div class="ainfo">
+                <div class="aname">${ag.nom}</div>
+                <div class="adni">DNI: ${ag.dni} · ${ag.viajes.length} viaje(s) · ${fmtARS(ag.viajes.reduce((s,v)=>s+v.total,0))}</div>
+              </div>
+            </div>`).join('')
+        }
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function toggleDirCard(di){
+  const body=document.getElementById('dcbody'+di);
+  const arrow=document.getElementById('dcarrow'+di);
+  const open=body.classList.toggle('open');
+  arrow.textContent=open?'▲':'▼';
+}
+
+function renderDirSelect(){
+  const sel=document.getElementById('aDirSel');
+  const cur=sel.value;
+  sel.innerHTML='<option value="">— Seleccionar dirección (debe estar dada de alta) —</option>';
+  direcciones.forEach(d=>{
+    const o=document.createElement('option');
+    o.value=o.textContent=d.nombre;
+    if(d.nombre===cur) o.selected=true;
+    sel.appendChild(o);
+  });
+  // Show warning if no dirs
+  document.getElementById('eDirNoHay').style.display=direcciones.length===0?'flex':'none';
+  chkAg();
+}
+function renderDirSelectPrint(){
+  const sel = document.getElementById('filtroDirLiq');
+  if(!sel) return;
+
+  const cur = sel.value;
+
+  sel.innerHTML = '<option value="">Todas las direcciones</option>';
+
+  direcciones.forEach(d => {
+    const o = document.createElement('option');
+    o.value = o.textContent = d.nombre;
+    if(d.nombre === cur) o.selected = true;
+    sel.appendChild(o);
+  });
+}
+function onDirSel(){
+  const dir = document.getElementById('aDirSel').value;
+  const wrap = document.getElementById('agExistenteWrap');
+  const sel  = document.getElementById('agExistenteSel');
+
+  // Clear fields and selector
+  sel.innerHTML = '<option value="">— Ingresar nuevo agente —</option>';
+  document.getElementById('aNom').value = '';
+  document.getElementById('aDNI').value = '';
+  document.getElementById('agPrev').classList.add('hidden');
+
+  if(!dir){ wrap.style.display='none'; chkAg(); return; }
+
+  const agsDir = agentes.filter(a=>a.dir===dir);
+  if(agsDir.length){
+    // Populate selector with existing agents sorted by name
+    agsDir.slice().sort((a,b)=>a.nom.localeCompare(b.nom)).forEach(ag=>{
+      const o = document.createElement('option');
+      o.value = ag.dni;
+      o.textContent = `${ag.nom}  (DNI: ${ag.dni})`;
+      sel.appendChild(o);
+    });
+    wrap.style.display = 'block';
+  } else {
+    wrap.style.display = 'none';
+  }
+  chkAg();
+}
+
+function onAgExistente(){
+  const dni = document.getElementById('agExistenteSel').value;
+  if(!dni){
+    // "Ingresar nuevo agente" selected — clear fields
+    document.getElementById('aNom').value = '';
+    document.getElementById('aDNI').value = '';
+    document.getElementById('agPrev').classList.add('hidden');
+    document.getElementById('btnOk').disabled = true;
+    chkAg();
+    return;
+  }
+  const ag = agentes.find(a=>a.dni===dni);
+  if(!ag) return;
+  document.getElementById('aNom').value = ag.nom;
+  document.getElementById('aDNI').value = ag.dni;
+  chkAg();
+}
+
+/* ══════════════════════════════════════════
+   TAB 0: AGENTE
+══════════════════════════════════════════ */
+function chkAg(){
+  const nom=document.getElementById('aNom').value.trim();
+  const dni=document.getElementById('aDNI').value.trim();
+  const dir=document.getElementById('aDirSel').value;
+  const dniOk=dni.length===8;
+
+  document.getElementById('eDNI').style.display=(dni.length>0&&!dniOk)?'flex':'none';
+  document.getElementById('aDNI').classList.toggle('err',dni.length>0&&!dniOk);
+
+  // Check if DNI already used in a DIFFERENT direction
+  const existing=agentes.find(a=>a.dni===dni);
+  const dniDupOtherDir = existing && dir && existing.dir!==dir;
+  document.getElementById('eDNIDup').style.display=dniDupOtherDir?'flex':'none';
+
+  document.getElementById('eDirReq').style.display=(dir===''&&nom)?'flex':'none';
+
+  const ok=nom&&dniOk&&dir&&!dniDupOtherDir&&direcciones.length>0;
+  document.getElementById('btnOk').disabled=!ok;
+
+  if(nom&&dniOk&&dir){
+    const ini=nom.split(' ').filter(Boolean).slice(0,2).map(w=>w[0]).join('');
+    document.getElementById('agAv').textContent=ini||'?';
+    document.getElementById('agPN').textContent=nom;
+    document.getElementById('agPS').textContent=`DNI: ${dni} · ${dir}`;
+    document.getElementById('agPrev').classList.remove('hidden');
+  } else {
+    document.getElementById('agPrev').classList.add('hidden');
+  }
+}
+
+function confirmarAgente(){
+  const nom=document.getElementById('aNom').value.trim();
+  const dni=document.getElementById('aDNI').value.trim();
+  const dir=document.getElementById('aDirSel').value;
+  const obs=document.getElementById('aObs') ? document.getElementById('aObs').value.trim() : '';
+
+  // Upsert by DNI — DNI is the unique key
+  const idx=agentes.findIndex(a=>a.dni===dni);
+  if(idx>=0){
+    // Update existing (same dir assumed since dniDupOtherDir would block)
+    agentes[idx]={...agentes[idx], nom, dir, obs};
+  } else {
+    agentes.push({dni, nom, dir, obs, viajes:[]});
+  }
+  activoDNI=dni;
+
+  const ini=nom.split(' ').filter(Boolean).slice(0,2).map(w=>w[0]).join('');
+  document.getElementById('cAv').textContent=ini;
+  document.getElementById('cName').textContent=nom;
+  document.getElementById('cSub').textContent=`DNI: ${dni} · ${dir}`;
+  document.getElementById('tn0').classList.add('done');
+
+  renderDirList();
+  guardarDatos();
+  // Refresh the agent selector for this direction so new agent appears next time
+  onDirSel();
+  goTab(1);
+}
+
+/* ══════════════════════════════════════════
+   AUTOCOMPLETE
+══════════════════════════════════════════ */
+function filterLoc(){
+  const v=document.getElementById('locIn').value.trim().toLowerCase();
+  const sug=document.getElementById('locSug');
+  const err=document.getElementById('eExcl');
+  const inp=document.getElementById('locIn');
+  const excl=v.length>1&&EXCL.some(e=>v===e||v.includes(e)||e.includes(v));
+  err.style.display=excl?'flex':'none';
+  inp.classList.toggle('err',excl);
+  if(!v){sug.style.display='none';return;}
+  const hits=LOCS.filter(l=>l.toLowerCase().includes(v)).slice(0,8);
+  if(!hits.length){sug.style.display='none';return;}
+  sug.innerHTML=hits.map(l=>`<div onclick="pickLoc('${l.replace(/'/g,"&#39;")}')">${l}</div>`).join('');
+  sug.style.display='block';
+}
+function showSug(){ if(document.getElementById('locIn').value.trim()) filterLoc(); }
+function pickLoc(l){
+  document.getElementById('locIn').value=l;
+  document.getElementById('locSug').style.display='none';
+  const excl=EXCL.includes(l.toLowerCase());
+  document.getElementById('eExcl').style.display=excl?'flex':'none';
+  document.getElementById('locIn').classList.toggle('err',excl);
+}
+function isExcl(loc){ const v=loc.toLowerCase().trim(); return EXCL.some(e=>v===e||v.includes(e)||e.includes(v)); }
+
+/* ══════════════════════════════════════════
+   SUPERPOSICIÓN
+══════════════════════════════════════════ */
+function chkOverlap(){
+  const fS=document.getElementById('fS').value;
+  const fR=document.getElementById('fR').value;
+  if(!fS||!fR){document.getElementById('ovWarn').classList.remove('on');return;}
+  const ov=getOverlapDates(fS,fR);
+  const warn=document.getElementById('ovWarn');
+  if(ov.length){ warn.classList.add('on'); warn.innerHTML=`⛔ Fechas ya ocupadas: <b>${ov.join(', ')}</b>`; }
+  else { warn.classList.remove('on'); warn.textContent=''; }
+}
+function getOverlapDates(fS,fR){
+  if(!activoDNI) return [];
+  const ag=agentes.find(a=>a.dni===activoDNI);
+  if(!ag) return [];
+  const occ=new Set();
+  ag.viajes.forEach(v=>{
+    let d=new Date(v.fS+'T00:00:00'), e=new Date(v.fR+'T00:00:00');
+    while(d<=e){occ.add(d.toISOString().split('T')[0]);d.setDate(d.getDate()+1);}
+  });
+  const conf=[];
+  let d=new Date(fS+'T00:00:00'), end=new Date(fR+'T00:00:00');
+  while(d<=end){const k=d.toISOString().split('T')[0];if(occ.has(k))conf.push(fd(k));d.setDate(d.getDate()+1);}
+  return conf;
+}
+function hasOverlap(fS,fR){ return getOverlapDates(fS,fR).length>0; }
+
+/* ══════════════════════════════════════════
+   VALIDACIÓN CASOS ESPECIALES
+══════════════════════════════════════════ */
+function chkCasoEspecial(){
+  const fS  = document.getElementById('fS').value;
+  const fR  = document.getElementById('fR').value;
+  const hSH = parseInt(document.getElementById('hSH').value) || 0;
+  const hSM = parseInt(document.getElementById('hSM').value) || 0;
+  const hRH = parseInt(document.getElementById('hRH').value) || 0;
+  const hRM = parseInt(document.getElementById('hRM').value) || 0;
+
+  // Condiciones: mismo día + salida < 12:00 + regreso > 21:30
+  const mismodia = fS && fR && fS === fR;
+  const salidaOk = hSH < 12;
+  const regresoOk = hRH > 21 || (hRH === 21 && hRM >= 30);
+  const habilitado = mismodia && salidaOk && regresoOk;
+
+  const lblAloj   = document.getElementById('lblAloj');
+  const lblComida = document.getElementById('lblComida');
+  const radAloj   = document.getElementById('chkAloj');
+  const radComida = document.getElementById('chkComida');
+  const warning   = document.getElementById('ckgWarning');
+
+  radAloj.disabled   = !habilitado;
+  radComida.disabled = !habilitado;
+  lblAloj.style.opacity   = habilitado ? '1' : '0.4';
+  lblComida.style.opacity = habilitado ? '1' : '0.4';
+  lblAloj.style.cursor    = habilitado ? 'pointer' : 'not-allowed';
+  lblComida.style.cursor  = habilitado ? 'pointer' : 'not-allowed';
+
+  // Si se deshabilita y había uno seleccionado, volver a "ninguno"
+  if(!habilitado && document.querySelector('input[name="casoEspecial"]:checked')?.value !== 'ninguno'){
+    document.getElementById('chkNinguno').checked = true;
+  }
+
+  // Mostrar advertencia solo si el usuario ya eligió fechas/horas y no cumple
+  const algunDato = fS || fR;
+  warning.style.display = (algunDato && !habilitado) ? 'block' : 'none';
+}
+
+/* ══════════════════════════════════════════
+   CÁLCULO
+══════════════════════════════════════════ */
+function calcular(){
+  const loc=document.getElementById('locIn').value.trim();
+  const fS=document.getElementById('fS').value;
+  const fR=document.getElementById('fR').value;
+  const hSH=parseInt(document.getElementById('hSH').value);
+  const hSM=parseInt(document.getElementById('hSM').value);
+  const hRH=parseInt(document.getElementById('hRH').value);
+  const hRM=parseInt(document.getElementById('hRM').value);
+  const esc=parseFloat(document.getElementById('escala').value);
+  const casoEspecial = document.querySelector('input[name="casoEspecial"]:checked')?.value || 'ninguno';
+  const aloj = casoEspecial === 'aloj';
+  const comida = casoEspecial === 'comida';
+
+  if(!loc){alert('Ingrese la localidad de destino.');return;}
+  if(!fS||!fR){alert('Ingrese las fechas.');return;}
+  if(isNaN(esc)||esc<=0){alert('Ingrese el valor de la escala.');return;}
+  if(isExcl(loc)){alert('Localidad excluida. No corresponde liquidar viáticos.');return;}
+  const dS=new Date(fS+'T00:00:00'),dR=new Date(fR+'T00:00:00');
+  if(dR<dS){alert('La fecha de regreso no puede ser anterior a la de salida.');return;}
+  if((aloj||comida) && fS!==fR){alert('⛔ Los casos especiales (75%/25%) solo aplican a viajes de un mismo día.');return;}
+  if((aloj||comida) && hSH>=12){alert('⛔ Para casos especiales la salida debe ser antes de las 12:00.');return;}
+  if((aloj||comida) && !(hRH>21||(hRH===21&&hRM>=30))){alert('⛔ Para casos especiales el regreso debe ser después de las 21:30.');return;}
+  if(hasOverlap(fS,fR)){alert('⛔ Las fechas se superponen con un viaje ya ingresado.');return;}
+
+  const diffDias=Math.round((dR-dS)/86400000)+1;
+  let pct,tipo,detalle,dias=diffDias;
+
+  if(comida){
+    pct=25;tipo='Caso especial (25%)';detalle='25% — Alojamiento y comida cubiertos por el organismo';
+  } else if(aloj){
+    pct=75;tipo='Caso especial (75%)';detalle='75% — Alojamiento cubierto por el organismo';
+  } else if(diffDias===1){
+    dias=1;
+    const a2030=hRH<20||(hRH===20&&hRM<30);
+    if(a2030){pct=40;tipo='Un día (40%)';detalle='40% — Regresa antes de las 20:30hs · Cubre desayuno, almuerzo y merienda';}
+    else{pct=70;tipo='Un día (70%)';detalle='70% — Regresa después de las 20:30hs · Cubre desayuno, almuerzo, merienda y cena';}
+  } else {
+    const p1=hSH<14?100:hSH<20?50:20;
+    const d2030=hRH>20||(hRH===20&&hRM>=30);
+    const pN=d2030?100:hRH>=12?50:20;
+    const inter=Math.max(0,diffDias-2);
+    pct=p1+(inter*100)+pN;
+    tipo=diffDias+' día(s)';
+    const pts=['Día 1: '+p1+'%'];
+    if(inter>0) pts.push(inter+' día(s) intermedio(s): '+inter+'×100%');
+    pts.push('Último día: '+pN+'%');
+    detalle=pts.join(' + ')+' = '+pct+'%';
+  }
+
+  const total=(esc*pct)/100;
+  ultimoCalculo={loc,fS,hS:p2(hSH)+':'+p2(hSM),fR,hR:p2(hRH)+':'+p2(hRM),esc,pct,tipo,detalle,total,dias};
+
+  document.getElementById('rLoc').textContent=loc;
+  document.getElementById('rDias').textContent=dias+' día(s)';
+  document.getElementById('rPct').textContent=pct+'%';
+  document.getElementById('rEsc').textContent=fmtARS(esc);
+  document.getElementById('rTot').textContent=fmtARS(total);
+  document.getElementById('rTipo').textContent=tipo;
+  document.getElementById('rDet').textContent=detalle;
+  document.getElementById('resBox').classList.add('on');
+  document.getElementById('resBox').scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+
+function limpiarCalc(){
+  const hoy=new Date().toISOString().split('T')[0];
+  document.getElementById('locIn').value='';
+  document.getElementById('eExcl').style.display='none';
+  document.getElementById('locIn').classList.remove('err');
+  document.getElementById('fS').value=hoy;document.getElementById('fR').value=hoy;
+  document.getElementById('hSH').value='08';document.getElementById('hSM').value='00';
+  document.getElementById('hRH').value='18';document.getElementById('hRM').value='00';
+  document.getElementById('escala').value=ESCALA_DEFAULT;
+  document.getElementById('chkNinguno').checked=true;
+  chkCasoEspecial();
+  document.getElementById('resBox').classList.remove('on');
+  document.getElementById('ovWarn').classList.remove('on');
+  ultimoCalculo=null;
+}
+
+/* ══════════════════════════════════════════
+   INGRESAR VIAJE
+══════════════════════════════════════════ */
+function ingresarViaje(){
+  if(!ultimoCalculo||!activoDNI) return;
+  if(hasOverlap(ultimoCalculo.fS,ultimoCalculo.fR)){alert('⛔ Superposición de fechas.');return;}
+  const ag=agentes.find(a=>a.dni===activoDNI);
+  if(!ag){alert('Error: agente no encontrado.');return;}
+  ag.viajes.push({...ultimoCalculo});
+  ag.viajes.sort((a,b)=>a.fS.localeCompare(b.fS));
+  document.getElementById('tn1').classList.add('done');
+  document.getElementById('tn2').classList.add('done');
+  renderDirList();
+  guardarDatos();
+  limpiarCalc();
+  goTab(2);
+}
+
+/* ══════════════════════════════════════════
+   NUEVO AGENTE
+══════════════════════════════════════════ */
+function nuevoAgente(){
+  activoDNI=null;
+  document.getElementById('aNom').value='';
+  document.getElementById('aDNI').value='';
+  document.getElementById('aDirSel').value='';
+  document.getElementById('agExistenteSel').innerHTML='<option value="">— Ingresar nuevo agente —</option>';
+  document.getElementById('agExistenteWrap').style.display='none';
+  document.getElementById('agPrev').classList.add('hidden');
+  document.getElementById('btnOk').disabled=true;
+  goTab(0);
+}
+
+/* ══════════════════════════════════════════
+   TAB 2: LIQUIDACIÓN — todos los agentes, filtros mes/dirección
+══════════════════════════════════════════ */
+function renderFiltroSelectores(){
+  // Selector de dirección
+  const selDir = document.getElementById('filtroDirLiq');
+  if(!selDir) return;
+  const curDir = selDir.value;
+  selDir.innerHTML = '<option value="">Todas las direcciones</option>';
+  direcciones.forEach(d => {
+    const o = document.createElement('option');
+    o.value = o.textContent = d.nombre;
+    if(d.nombre === curDir) o.selected = true;
+    selDir.appendChild(o);
+  });
+
+  // Selector de mes: armar lista de meses con viajes en el sistema
+  const selMes = document.getElementById('filtroMesLiq');
+  if(!selMes) return;
+  const curMes = selMes.value;
+  selMes.innerHTML = '<option value="">Mes del período actual</option>';
+  const mesSet = new Set();
+  agentes.forEach(a => a.viajes.forEach(v => {
+    const d = new Date(v.fS + 'T00:00:00');
+    mesSet.add(`${d.getFullYear()}-${p2(d.getMonth()+1)}`);
+  }));
+  const mesArr = Array.from(mesSet).sort().reverse();
+  mesArr.forEach(m => {
+    const [y, mo] = m.split('-').map(Number);
+    const o = document.createElement('option');
+    o.value = m;
+    o.textContent = `${MESES[mo-1]} ${y}`;
+    if(m === curMes) o.selected = true;
+    selMes.appendChild(o);
+  });
+}
+
+function limpiarFiltrosLiq(){
+  const selDir = document.getElementById('filtroDirLiq');
+  const selMes = document.getElementById('filtroMesLiq');
+  if(selDir) selDir.value = '';
+  if(selMes) selMes.value = '';
+  renderLiq();
+}
+
+function renderLiq(){
+  // Actualizar selectores con datos actuales
+  renderFiltroSelectores();
+
+  const dirFiltro = document.getElementById('filtroDirLiq')?.value || '';
+  const mesFiltro = document.getElementById('filtroMesLiq')?.value || '';
+
+  // Determinar el filtro de mes activo
+  let filtroYear, filtroMonth;
+  if(mesFiltro){
+    const [y,m] = mesFiltro.split('-').map(Number);
+    filtroYear = y; filtroMonth = m - 1; // 0-based
+  } else {
+    filtroYear = periodo.year; filtroMonth = periodo.month;
+  }
+
+  // Info de filtros activos
+  const infoEl = document.getElementById('lFiltroInfo');
+  const partes = [];
+  partes.push(`Mes: ${MESES[filtroMonth]} ${filtroYear}`);
+  if(dirFiltro) partes.push(`Dirección: ${dirFiltro}`);
+  if(infoEl){
+    infoEl.textContent = '🔍 Filtro activo — ' + partes.join(' · ');
+    infoEl.style.display = 'block';
+  }
+
+  // Filtrar agentes y viajes
+  const agFiltrados = agentes
+    .filter(a => !dirFiltro || a.dir === dirFiltro)
+    .map(a => ({
+      ...a,
+      viajes: a.viajes.filter(v => {
+        const d = new Date(v.fS + 'T00:00:00');
+        return d.getFullYear() === filtroYear && d.getMonth() === filtroMonth;
+      })
+    }))
+    .filter(a => a.viajes.length > 0);
+
+  if(!agFiltrados.length){
+    document.getElementById('lEmpty').style.display='block';
+    document.getElementById('lTableWrap').classList.add('hidden');
+    document.getElementById('lBtns').style.display='none';
+    return;
+  }
+  document.getElementById('lEmpty').style.display='none';
+  document.getElementById('lTableWrap').classList.remove('hidden');
+  document.getElementById('lBtns').style.display='flex';
+
+  // Agrupar por dirección
+  const byDir = {};
+  direcciones.forEach(d => { byDir[d.nombre] = []; });
+  agFiltrados.forEach(ag => {
+    if(!byDir[ag.dir]) byDir[ag.dir] = [];
+    byDir[ag.dir].push(ag);
+  });
+  const dirKeys = Object.keys(byDir).filter(k => byDir[k].length > 0);
+
+  let grandTotal = 0;
+  let html = '';
+
+  dirKeys.forEach(dir => {
+    const agsDir = byDir[dir];
+    agsDir.sort((a,b) => a.nom.localeCompare(b.nom));
+    let dirTotal = 0;
+
+    html += `<div style="margin-bottom:22px">
+      <div style="background:var(--pu);color:#fff;padding:8px 14px;border-radius:8px 8px 0 0;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px">
+        🏢 ${dir}
+      </div>`;
+
+    agsDir.forEach(ag => {
+      const agTotal = ag.viajes.reduce((s,v) => s+v.total, 0);
+      dirTotal += agTotal;
+      const ini = ag.nom.split(' ').filter(Boolean).slice(0,2).map(w=>w[0]).join('');
+
+      html += `<div style="border:1px solid var(--pub);border-top:none;padding:12px 14px;background:#fff">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+          <div style="width:30px;height:30px;border-radius:50%;background:var(--bl);color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0">${ini}</div>
+          <div>
+            <div style="font-size:13px;font-weight:700">${ag.nom}</div>
+            <div style="font-size:11px;color:var(--tx3);font-family:'DM Mono',monospace">DNI: ${ag.dni}</div>
+          </div>
+        </div>
+        <table class="tbl" style="margin-bottom:0">
+          <thead><tr>
+            <th>#</th><th>Salida</th><th>Hora</th><th>Localidad</th>
+            <th>Regreso</th><th>Hora</th><th>%</th><th>Total</th>
+            <th style="text-align:center">—</th>
+          </tr></thead>
+          <tbody>
+            ${ag.viajes.map((v,i) => `<tr>
+              <td>${i+1}</td><td>${fd(v.fS)}</td><td class="mono">${v.hS}</td>
+              <td>${v.loc}</td><td>${fd(v.fR)}</td><td class="mono">${v.hR}</td>
+              <td><span class="pill">${v.pct}%</span></td>
+              <td class="gmono">${fmtARS(v.total)}</td>
+              <td style="text-align:center;white-space:nowrap">
+                <button class="dbtn" title="Ver detalle" onclick="verDetalleViaje('${ag.dni}',${i})" style="color:var(--bl)">👁</button>
+                <button class="dbtn" title="Editar" onclick="editarViaje('${ag.dni}',${i})" style="color:var(--am)">✏️</button>
+                <button class="dbtn" title="Imprimir este viaje" onclick="imprimirViajeInd('${ag.dni}',${i})" style="color:var(--pu)">🖨</button>
+                <button class="dbtn" title="Eliminar" onclick="delViaje('${ag.dni}',${i})" style="color:var(--rd)">🗑</button>
+              </td>
+            </tr>`).join('')}
+          </tbody>
+          <tfoot><tr class="totr">
+            <td colspan="7" style="text-align:right;padding-right:12px">TOTAL ${ag.nom.split(' ')[0]}</td>
+            <td class="gmono">${fmtARS(agTotal)}</td><td></td>
+          </tr></tfoot>
+        </table>
+      </div>`;
+    });
+
+    grandTotal += dirTotal;
+    html += `<div style="background:var(--pul);border:1px solid var(--pub);border-top:none;border-radius:0 0 8px 8px;padding:10px 16px;display:flex;justify-content:space-between;align-items:center">
+      <span style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--pu)">Total ${dir}</span>
+      <span style="font-size:17px;font-weight:700;font-family:'DM Mono',monospace;color:var(--pu)">${fmtARS(dirTotal)}</span>
+    </div></div>`;
+  });
+
+  if(dirKeys.length > 1){
+    html += `<div style="background:var(--tx);color:#fff;border-radius:9px;padding:12px 18px;display:flex;justify-content:space-between;align-items:center;margin-top:8px">
+      <span style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.5px">Total General — ${MESES[filtroMonth]} ${filtroYear}</span>
+      <span style="font-size:20px;font-weight:700;font-family:'DM Mono',monospace">${fmtARS(grandTotal)}</span>
+    </div>`;
+  }
+
+  document.getElementById('lTablaContenido').innerHTML = html;
+}
+
+function delViaje(dni,i){
+  const ag=agentes.find(a=>a.dni===dni);
+  if(!ag) return;
+  ag.viajes.splice(i,1);
+  guardarDatos();
+  renderLiq(); chkOverlap(); renderDirList();
+}
+
+function reiniciar(){
+  if(!confirm('¿Borrar todos los agentes, viajes y direcciones? No se puede deshacer.')) return;
+  agentes=[];direcciones=[];activoDNI=null;ultimoCalculo=null;
+  resetPeriodo();
+  ['tn0','tn1','tn2'].forEach(id=>document.getElementById(id).classList.remove('done'));
+  document.getElementById('aNom').value='';document.getElementById('aDNI').value='';
+  document.getElementById('aDirSel').innerHTML='<option value="">— Seleccionar dirección —</option>';
+  document.getElementById('agExistenteSel').innerHTML='<option value="">— Ingresar nuevo agente —</option>';
+  document.getElementById('agExistenteWrap').style.display='none';
+  document.getElementById('agPrev').classList.add('hidden');
+  document.getElementById('btnOk').disabled=true;
+  document.getElementById('printDoc').innerHTML='';
+  const selDir = document.getElementById('filtroDirLiq');
+  const selMes = document.getElementById('filtroMesLiq');
+  if(selDir) selDir.value='';
+  if(selMes) selMes.value='';
+  renderDirList();limpiarCalc();goTab(0);
+}
+
+/* ══════════════════════════════════════════
+   TAB 3: IMPRIMIR
+══════════════════════════════════════════ */
+function syncPrintTab(){
+  // Sincronizar el banner con los filtros activos de Liquidación
+  const mesFiltro = document.getElementById('filtroMesLiq')?.value || '';
+  let filtroYear, filtroMonth;
+  if(mesFiltro){
+    const [y,m] = mesFiltro.split('-').map(Number);
+    filtroYear = y; filtroMonth = m - 1;
+  } else {
+    filtroYear = periodo.year; filtroMonth = periodo.month;
+  }
+  const dirFiltro = document.getElementById('filtroDirLiq')?.value || '';
+  const pd = document.getElementById('printPeriodoDisplay');
+  const dd = document.getElementById('printDirDisplay');
+  if(pd) pd.textContent = MESES[filtroMonth] + ' ' + filtroYear;
+  if(dd) dd.textContent = dirFiltro ? '📁 ' + dirFiltro : 'Todas las direcciones';
+  // Limpiar doc previo y ocultar botón imprimir — solo resetear si no hay viajes
+  // (generarYMostrarDoc lo vuelve a generar justo después)
+}
+
+function generarYMostrarDoc(){
+  const dirFiltro = document.getElementById('filtroDirLiq')?.value || '';
+  const mesFiltro = document.getElementById('filtroMesLiq')?.value || '';
+  let filtroYear, filtroMonth;
+  if(mesFiltro){ const [y,m]=mesFiltro.split('-').map(Number); filtroYear=y; filtroMonth=m-1; }
+  else { filtroYear=periodo.year; filtroMonth=periodo.month; }
+  const hayViajes = agentes
+    .filter(a=>!dirFiltro||a.dir===dirFiltro)
+    .some(a=>a.viajes.some(v=>{
+      const d=new Date(v.fS+'T00:00:00');
+      return d.getFullYear()===filtroYear && d.getMonth()===filtroMonth;
+    }));
+  const btn = document.getElementById('btnPrint');
+  if(!hayViajes){
+    document.getElementById('printDoc').innerHTML='<p style="text-align:center;padding:40px;color:#8c95a6;font-size:13px">No hay viajes para el período seleccionado.<br>Cargue viajes desde <strong>Calcular Viaje</strong> y luego vuelva aquí.</p>';
+    if(btn) btn.style.display='none';
+    return;
+  }
+  verDoc();
+  if(btn) btn.style.display='inline-flex';
+}
+
+/* ══════════════════════════════════════════
+   DOCUMENTO DE IMPRESIÓN
+   Lógica: agrupar por dirección → dentro de cada dir,
+   consolidar por DNI (agente único) → viajes ordenados cronológicamente.
+══════════════════════════════════════════ */
+function verDoc(){
+  const dirFiltro = document.getElementById('filtroDirLiq')?.value || '';
+  const mesFiltro = document.getElementById('filtroMesLiq')?.value || '';
+
+  let filtroYear, filtroMonth;
+  if(mesFiltro){
+    const [y,m] = mesFiltro.split('-').map(Number);
+    filtroYear = y; filtroMonth = m - 1;
+  } else {
+    filtroYear = periodo.year; filtroMonth = periodo.month;
+  }
+
+  const conViajes = agentes
+    .filter(a => !dirFiltro || a.dir === dirFiltro)
+    .map(a => {
+      const viajesFiltrados = a.viajes.filter(v => {
+        const d = new Date(v.fS + 'T00:00:00');
+        return d.getFullYear() === filtroYear && d.getMonth() === filtroMonth;
+      });
+      return { ...a, viajes: viajesFiltrados };
+    })
+    .filter(a => a.viajes.length > 0);
+
+  if(!conViajes.length){
+    return;
+  }
+
+  // Agrupar por dirección (mantener orden de inserción de direcciones)
+  const byDir={};
+  direcciones.forEach(d=>{ byDir[d.nombre]=[]; });
+  conViajes.forEach(ag=>{
+    if(!byDir[ag.dir]) byDir[ag.dir]=[];
+    byDir[ag.dir].push(ag);
+  });
+  // Filtrar dirs sin agentes
+  const dirKeys=Object.keys(byDir).filter(k=>byDir[k].length>0);
+  if(!dirKeys.length){ return; }
+
+  const per=`${MESES[filtroMonth]} ${filtroYear}`;
+
+  let html=`
+    <div class="pd-title">
+      <h2>Solicitud de Anticipos de Viáticos</h2>
+      <div class="pd-period">${per}</div>
+      <div class="pd-sub">Decreto 388/07 — Provincia de Buenos Aires</div>
+    </div>`;
+
+  let grandTotal=0;
+
+  dirKeys.forEach(dir=>{
+    const agsInDir=byDir[dir];
+    // Ordenar agentes por apellido dentro de la dirección
+    agsInDir.sort((a,b)=>a.nom.localeCompare(b.nom));
+    let dirTotal=0;
+
+    html+=`<div class="pd-dir-section">`;
+    html+=`<div class="pd-dir-hdr">${dir}</div>`;
+
+    agsInDir.forEach(ag=>{
+      const agTotal=ag.viajes.reduce((s,v)=>s+v.total,0);
+      dirTotal+=agTotal;
+
+      html+=`
+        <div class="pd-agent-block">
+          <div class="pd-agent-info">
+            <div class="pd-field"><label>DNI</label><span class="fv">${ag.dni}</span></div>
+            <div class="pd-field"><label>Apellido y Nombre</label><span class="fv">${ag.nom}</span></div>
+          </div>
+          <table class="pd-tbl">
+            <thead><tr>
+              <th>Salida</th><th>Hora</th><th>Localidad</th>
+              <th>Regreso</th><th>Hora</th><th>Total</th>
+            </tr></thead>
+            <tbody>`;
+
+      ag.viajes.forEach(v=>{
+        html+=`<tr>
+          <td>${fd(v.fS)}</td><td>${v.hS}</td>
+          <td class="tl">${v.loc}</td>
+          <td>${fd(v.fR)}</td><td>${v.hR}</td>
+          <td style="font-weight:700">${fmtARS(v.total)}</td>
+        </tr>`;
+      });
+
+      html+=`
+            </tbody>
+            <tfoot><tr class="stot">
+              <td colspan="5" style="text-align:right;padding-right:10px">Total ${ag.nom}</td>
+              <td style="font-weight:700;text-align:center">${fmtARS(agTotal)}</td>
+            </tr></tfoot>
+          </table>
+        </div>`;
+    });
+
+    html+=`
+      <div class="pd-dir-total">
+        <span>Total ${dir}</span>
+        <span>${fmtARS(dirTotal)}</span>
+      </div>
+    </div>`;  // pd-dir-section
+
+    grandTotal+=dirTotal;
+  });
+
+  if(dirKeys.length>1){
+    html+=`
+      <div class="pd-grand">
+        <span>Total General — ${per}</span>
+        <span>${fmtARS(grandTotal)}</span>
+      </div>`;
+  }
+
+  html+=`
+    <div class="pd-sig-wrap">
+      <div class="pd-sig"><div class="line">Autoridad Responsable</div></div>
+    </div>
+    <p class="pd-note">Generado — Sistema de Liquidación de Viáticos — Decreto 388/07</p>`;
+
+  document.getElementById('printDoc').innerHTML=html;
+}
+
+/* ══════════════════════════════════════════
+   GUARDADO AUTOMÁTICO (localStorage)
+══════════════════════════════════════════ */
+const LS_KEY = 'viaticos_v1';
+
+function guardarDatos(){
+  try{
+    const payload = {
+      version: 1,
+      guardado: new Date().toISOString(),
+      periodo: periodo,
+      direcciones: direcciones,
+      agentes: agentes
+    };
+    localStorage.setItem(LS_KEY, JSON.stringify(payload));
+    // Update last-saved timestamp display
+    const el = document.getElementById('ultimoGuardado');
+    if(el) el.textContent = new Date().toLocaleTimeString('es-AR', {hour:'2-digit',minute:'2-digit'});
+  } catch(e){ /* localStorage not available – silently ignore */ }
+}
+
+function cargarDatos(){
+  try{
+    const raw = localStorage.getItem(LS_KEY);
+    if(!raw) return false;
+    const data = JSON.parse(raw);
+    if(!data || data.version !== 1) return false;
+    direcciones   = data.direcciones || [];
+    agentes       = (data.agentes || []).map(a=>({...a, viajes: a.viajes||[]}));
+    if(data.periodo) periodo = data.periodo;
+    // Show last saved time
+    if(data.guardado){
+      const d = new Date(data.guardado);
+      const el = document.getElementById('ultimoGuardado');
+      if(el) el.textContent = d.toLocaleString('es-AR',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});
+    }
+    return true;
+  } catch(e){ return false; }
+}
+
+function borrarDatosGuardados(){
+  if(!confirm('¿Borrar TODOS los datos guardados (direcciones, agentes y viajes)? Esta acción no se puede deshacer.')) return;
+  try{ localStorage.removeItem(LS_KEY); } catch(e){}
+  agentes=[];direcciones=[];activoDNI=null;ultimoCalculo=null;
+  resetPeriodo();
+  ['tn0','tn1','tn2'].forEach(id=>document.getElementById(id).classList.remove('done'));
+  document.getElementById('aNom').value='';
+  document.getElementById('aDNI').value='';
+  document.getElementById('aDirSel').innerHTML='<option value="">— Seleccionar dirección —</option>';
+  document.getElementById('agExistenteSel').innerHTML='<option value="">— Ingresar nuevo agente —</option>';
+  document.getElementById('agExistenteWrap').style.display='none';
+  document.getElementById('agPrev').classList.add('hidden');
+  document.getElementById('btnOk').disabled=true;
+  document.getElementById('printDoc').innerHTML='';
+  document.getElementById('ultimoGuardado').textContent='—';
+  limpiarCalc();
+  renderDirSelect();
+  renderDirList();
+  alert('Datos borrados correctamente.');
+}
+
+/* ══════════════════════════════════════════
+   HELPERS
+══════════════════════════════════════════ */
+function viajeEnPeriodo(v){
+  const fecha = new Date(v.fS + 'T00:00:00');
+  return fecha.getFullYear() === periodo.year &&
+         fecha.getMonth() === periodo.month;
+}
+
+function p2(n){ return String(n).padStart(2,'0'); }
+function fd(d){ const[y,m,dd]=d.split('-'); return dd+'/'+m+'/'+y; }
+function fmtARS(n){
+  return new Intl.NumberFormat('es-AR',{style:'currency',currency:'ARS',minimumFractionDigits:2}).format(n);
+}
+
+/* ══════════════════════════════════════════
+   MODAL — VER / EDITAR / IMPRIMIR VIAJE
+══════════════════════════════════════════ */
+function abrirModal(){ document.getElementById('modalOverlay').classList.add('open'); }
+function cerrarModal(){ document.getElementById('modalOverlay').classList.remove('open'); }
+
+function verDetalleViaje(dni, idx){
+  const ag = agentes.find(a=>a.dni===dni);
+  if(!ag) return;
+  const v = ag.viajes[idx];
+  if(!v) return;
+  document.getElementById('modalTitulo').textContent = '📋 Detalle del Viaje';
+  document.getElementById('modalHdr').style.background = 'linear-gradient(135deg,#1d4ed8,#1e3a8a)';
+  document.getElementById('modalCuerpo').innerHTML = `
+    <div style="display:grid;gap:10px">
+      <div style="background:var(--sur2);border-radius:8px;padding:12px 14px">
+        <p style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--tx3);margin-bottom:6px">Agente</p>
+        <p style="font-weight:700">${ag.nom}</p>
+        <p style="font-size:11.5px;color:var(--tx3);font-family:'DM Mono',monospace">DNI: ${ag.dni} · ${ag.dir}</p>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        <div style="background:var(--sur2);border-radius:8px;padding:10px 12px">
+          <p style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--tx3);margin-bottom:4px">Salida</p>
+          <p style="font-weight:600">${fd(v.fS)}</p>
+          <p style="font-size:12px;color:var(--tx2);font-family:'DM Mono',monospace">${v.hS}hs</p>
+        </div>
+        <div style="background:var(--sur2);border-radius:8px;padding:10px 12px">
+          <p style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--tx3);margin-bottom:4px">Regreso</p>
+          <p style="font-weight:600">${fd(v.fR)}</p>
+          <p style="font-size:12px;color:var(--tx2);font-family:'DM Mono',monospace">${v.hR}hs</p>
+        </div>
+      </div>
+      <div style="background:var(--sur2);border-radius:8px;padding:10px 12px">
+        <p style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--tx3);margin-bottom:4px">Localidad de Destino</p>
+        <p style="font-weight:600">${v.loc}</p>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
+        <div style="background:var(--bll);border-radius:8px;padding:10px 12px;text-align:center">
+          <p style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--bl);margin-bottom:4px">Días</p>
+          <p style="font-weight:700;font-size:16px;color:var(--bl)">${v.dias}</p>
+        </div>
+        <div style="background:var(--bll);border-radius:8px;padding:10px 12px;text-align:center">
+          <p style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--bl);margin-bottom:4px">Porcentaje</p>
+          <p style="font-weight:700;font-size:16px;color:var(--bl)">${v.pct}%</p>
+        </div>
+        <div style="background:var(--grl);border-radius:8px;padding:10px 12px;text-align:center">
+          <p style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--gr);margin-bottom:4px">Total</p>
+          <p style="font-weight:700;font-size:14px;color:var(--gr);font-family:'DM Mono',monospace">${fmtARS(v.total)}</p>
+        </div>
+      </div>
+      <p style="font-size:11px;color:var(--tx3);background:var(--sur2);border-radius:7px;padding:8px 12px;line-height:1.6">${v.detalle}</p>
+    </div>
+    <div style="display:flex;gap:8px;margin-top:16px;justify-content:flex-end">
+      <button class="btn bgh bsm" onclick="cerrarModal()">Cerrar</button>
+      <button class="btn bam bsm" onclick="cerrarModal();editarViaje('${ag.dni}',${idx})">✏️ Editar</button>
+      <button class="btn brd bsm" onclick="cerrarModal();delViaje('${ag.dni}',${idx})">🗑 Eliminar</button>
+    </div>`;
+  abrirModal();
+}
+
+function editarViaje(dni, idx){
+  const ag = agentes.find(a=>a.dni===dni);
+  if(!ag) return;
+  const v = ag.viajes[idx];
+  if(!v) return;
+  document.getElementById('modalTitulo').textContent = '✏️ Editar Viaje';
+  document.getElementById('modalHdr').style.background = 'linear-gradient(135deg,#b45309,#92400e)';
+  document.getElementById('modalCuerpo').innerHTML = `
+    <p style="font-size:11.5px;color:var(--tx2);margin-bottom:14px">
+      <strong>${ag.nom}</strong> · ${ag.dir}
+    </p>
+    <div style="display:grid;gap:10px">
+      <div>
+        <label style="display:block;font-size:11px;font-weight:600;color:var(--tx2);margin-bottom:4px">Localidad</label>
+        <input type="text" id="edt_loc" value="${v.loc}" style="width:100%;padding:8px 10px;border:1.5px solid var(--bor);border-radius:7px;font-size:13px;font-family:'DM Sans',sans-serif">
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <div>
+          <label style="display:block;font-size:11px;font-weight:600;color:var(--tx2);margin-bottom:4px">Fecha Salida</label>
+          <input type="date" id="edt_fS" value="${v.fS}" style="width:100%;padding:8px 10px;border:1.5px solid var(--bor);border-radius:7px;font-size:13px;font-family:'DM Sans',sans-serif">
+        </div>
+        <div>
+          <label style="display:block;font-size:11px;font-weight:600;color:var(--tx2);margin-bottom:4px">Hora Salida</label>
+          <input type="text" id="edt_hS" value="${v.hS}" placeholder="08:00" style="width:100%;padding:8px 10px;border:1.5px solid var(--bor);border-radius:7px;font-size:13px;font-family:'DM Mono',monospace">
+        </div>
+        <div>
+          <label style="display:block;font-size:11px;font-weight:600;color:var(--tx2);margin-bottom:4px">Fecha Regreso</label>
+          <input type="date" id="edt_fR" value="${v.fR}" style="width:100%;padding:8px 10px;border:1.5px solid var(--bor);border-radius:7px;font-size:13px;font-family:'DM Sans',sans-serif">
+        </div>
+        <div>
+          <label style="display:block;font-size:11px;font-weight:600;color:var(--tx2);margin-bottom:4px">Hora Regreso</label>
+          <input type="text" id="edt_hR" value="${v.hR}" placeholder="18:00" style="width:100%;padding:8px 10px;border:1.5px solid var(--bor);border-radius:7px;font-size:13px;font-family:'DM Mono',monospace">
+        </div>
+      </div>
+      <p style="font-size:11px;color:var(--am);background:var(--aml);border-radius:7px;padding:8px 12px;line-height:1.5">
+        ⚠ Al guardar, se recalcula el viático con los nuevos datos. El porcentaje y total se actualizan automáticamente.
+      </p>
+    </div>
+    <div style="display:flex;gap:8px;margin-top:16px;justify-content:flex-end">
+      <button class="btn bgh bsm" onclick="cerrarModal()">Cancelar</button>
+      <button class="btn bgr bsm" onclick="guardarEdicionViaje('${dni}',${idx})">✔ Guardar cambios</button>
+    </div>`;
+  abrirModal();
+}
+
+function guardarEdicionViaje(dni, idx){
+  const ag = agentes.find(a=>a.dni===dni);
+  if(!ag) return;
+  const v = ag.viajes[idx];
+
+  const loc = document.getElementById('edt_loc').value.trim();
+  const fS  = document.getElementById('edt_fS').value;
+  const hS  = document.getElementById('edt_hS').value.trim();
+  const fR  = document.getElementById('edt_fR').value;
+  const hR  = document.getElementById('edt_hR').value.trim();
+
+  if(!loc||!fS||!fR||!hS||!hR){ alert('Completá todos los campos.'); return; }
+
+  const hSH = parseInt(hS.split(':')[0])||0;
+  const hSM = parseInt(hS.split(':')[1])||0;
+  const hRH = parseInt(hR.split(':')[0])||0;
+  const hRM = parseInt(hR.split(':')[1])||0;
+  const esc = v.esc || 65140;
+
+  const dS = new Date(fS+'T00:00:00'), dR = new Date(fR+'T00:00:00');
+  if(dR<dS){ alert('La fecha de regreso no puede ser anterior a la salida.'); return; }
+
+  // Recalcular
+  const diffDias = Math.round((dR-dS)/86400000)+1;
+  let pct, tipo, detalle, dias=diffDias;
+
+  // Detectar si era caso especial
+  const esCasoEsp = v.pct===25||v.pct===75;
+  if(esCasoEsp){
+    pct=v.pct; tipo=v.tipo; detalle=v.detalle;
+  } else if(diffDias===1){
+    dias=1;
+    const a2030=hRH<20||(hRH===20&&hRM<30);
+    if(a2030){pct=40;tipo='Un día (40%)';detalle='40% — Regresa antes de las 20:30hs';}
+    else{pct=70;tipo='Un día (70%)';detalle='70% — Regresa después de las 20:30hs';}
+  } else {
+    const p1=hSH<14?100:hSH<20?50:20;
+    const d2030=hRH>20||(hRH===20&&hRM>=30);
+    const pN=d2030?100:hRH>=12?50:20;
+    const inter=Math.max(0,diffDias-2);
+    pct=p1+(inter*100)+pN;
+    tipo=diffDias+' día(s)';
+    const pts=['Día 1: '+p1+'%'];
+    if(inter>0) pts.push(inter+' día(s) intermedio(s): '+inter+'×100%');
+    pts.push('Último día: '+pN+'%');
+    detalle=pts.join(' + ')+' = '+pct+'%';
+  }
+
+  const total=(esc*pct)/100;
+  ag.viajes[idx] = {...v, loc, fS, hS, fR, hR, pct, tipo, detalle, total, dias};
+  ag.viajes.sort((a,b)=>a.fS.localeCompare(b.fS));
+  guardarDatos();
+  cerrarModal();
+  renderLiq();
+  renderDirList();
+}
+
+function delViaje(dni, idx){
+  const ag = agentes.find(a=>a.dni===dni);
+  if(!ag) return;
+  const v = ag.viajes[idx];
+  if(!confirm(`¿Eliminar el viaje a ${v.loc} del ${fd(v.fS)}?`)) return;
+  ag.viajes.splice(idx,1);
+  guardarDatos();
+  renderLiq(); chkOverlap(); renderDirList();
+}
+
+function imprimirViajeInd(dni, idx){
+  const ag = agentes.find(a=>a.dni===dni);
+  if(!ag) return;
+  const v = ag.viajes[idx];
+  const per = `${MESES[new Date(v.fS+'T00:00:00').getMonth()]} ${new Date(v.fS+'T00:00:00').getFullYear()}`;
+  const html = `
+    <div class="pd-title">
+      <h2>Solicitud de Anticipo de Viático</h2>
+      <div class="pd-period">${per}</div>
+      <div class="pd-sub">Decreto 388/07 — Provincia de Buenos Aires</div>
+    </div>
+    <div class="pd-dir-section">
+      <div class="pd-dir-hdr">${ag.dir}</div>
+      <div class="pd-agent-block">
+        <div class="pd-agent-info">
+          <div class="pd-field"><label>DNI</label><span class="fv">${ag.dni}</span></div>
+          <div class="pd-field"><label>Apellido y Nombre</label><span class="fv">${ag.nom}</span></div>
+        </div>
+        <table class="pd-tbl">
+          <thead><tr><th>Salida</th><th>Hora</th><th>Localidad</th><th>Regreso</th><th>Hora</th><th>Total</th></tr></thead>
+          <tbody><tr>
+            <td>${fd(v.fS)}</td><td>${v.hS}</td><td class="tl">${v.loc}</td>
+            <td>${fd(v.fR)}</td><td>${v.hR}</td><td style="font-weight:700">${fmtARS(v.total)}</td>
+          </tr></tbody>
+          <tfoot><tr class="stot">
+            <td colspan="5" style="text-align:right;padding-right:10px">Total ${ag.nom}</td>
+            <td style="font-weight:700;text-align:center">${fmtARS(v.total)}</td>
+          </tr></tfoot>
+        </table>
+      </div>
+    </div>
+    <div class="pd-sig-wrap"><div class="pd-sig"><div class="line">Autoridad Responsable</div></div></div>
+    <p class="pd-note">Generado — Sistema de Liquidación de Viáticos — Decreto 388/07</p>`;
+  document.getElementById('printDoc').innerHTML = html;
+  document.getElementById('btnPrint').style.display = 'inline-flex';
+  goTab(3);
+}
+
+// Cerrar modal al hacer click fuera
+document.addEventListener('click', e => {
+  if(e.target.id === 'modalOverlay') cerrarModal();
+});
+
+</script>
+</body>
+</html>
