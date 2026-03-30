@@ -1,6 +1,7 @@
 
 
 
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -191,16 +192,12 @@ select.err{border-color:var(--rd)!important}
 
 @media print{
   @page{margin:10mm 12mm}
-  body{background:#fff;padding:0;margin:0}
-  .wrap > *{display:none!important}
-  .card{display:block!important}
-  .tc{display:none!important}
-  #tab3{display:block!important}
-  #tab3 .st,#tab3 .brow,#tab3 .no-print{display:none!important}
-  #tab3 .cb{padding:0!important}
-  .pdoc{display:block!important;box-shadow:none!important;border:none!important;border-radius:0!important;padding:0!important}
+  html,body{background:#fff;padding:0;margin:0;height:auto!important}
+  body > *,
+  .wrap > *,
+  .hdr,.tabs,.card{display:none!important}
+  #printShadow{display:block!important;padding:0;margin:0}
   .pd-dir-total,.pd-grand,.pd-dir-hdr,.pd-agent-info{-webkit-print-color-adjust:exact;print-color-adjust:exact}
-  html,body{height:auto!important;overflow:visible!important}
 }
 #modalOverlay.open{display:flex!important}
 input[type=radio]{accent-color:var(--bl)}
@@ -469,14 +466,24 @@ input[type=radio]{accent-color:var(--bl)}
   <div id="tab3" class="tc">
     <div class="cb">
       <p class="st">🖨 Vista previa — Solicitud de Anticipos de Viáticos</p>
-      <div class="brow no-print" style="margin-bottom:18px">
+      <div class="brow" style="margin-bottom:18px">
         <button class="btn bbl" onclick="window.print()">
           <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
           Imprimir / Guardar PDF
         </button>
+        <button class="btn bgr" onclick="generarWord()" id="btnWord" style="display:none">
+          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+          Descargar Word
+        </button>
         <button class="btn bgh" onclick="goTab(2)">← Volver a Liquidación</button>
       </div>
-      <div class="pdoc" id="printDoc"><!-- dinámico --></div>
+      <!-- printDoc se renderiza en #printShadow debajo del .card para que print CSS lo encuentre fácil -->
+      <div id="printPreview" style="background:#f0f0f0;border-radius:8px;padding:12px;min-height:120px">
+        <p id="printPlaceholder" style="text-align:center;color:var(--tx3);padding:40px 0;font-size:13px">
+          Usá el botón <strong>Ver e Imprimir</strong> en Liquidación para generar el documento.
+        </p>
+        <div class="pdoc" id="printDoc" style="display:none"></div>
+      </div>
     </div>
   </div>
 
@@ -541,6 +548,9 @@ input[type=radio]{accent-color:var(--bl)}
 </div><!-- /card -->
 
 
+
+<!-- ══════════ SHADOW PRINT AREA (solo para impresión) ══════════ -->
+<div id="printShadow" style="display:none"></div>
 
 <!-- ══════════ MODAL VIAJE ══════════ -->
 <div id="modalOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:1000;align-items:center;justify-content:center;padding:16px">
@@ -1315,6 +1325,10 @@ function reiniciar(){
   document.getElementById('agPrev').classList.add('hidden');
   document.getElementById('btnOk').disabled=true;
   document.getElementById('printDoc').innerHTML='';
+  const _sh=document.getElementById('printShadow');if(_sh)_sh.innerHTML='';
+  const _pp=document.getElementById('printPlaceholder');if(_pp)_pp.style.display='';
+  const _pd=document.getElementById('printDoc');if(_pd)_pd.style.display='none';
+  const _bw=document.getElementById('btnWord');if(_bw)_bw.style.display='none';
   const selDir = document.getElementById('filtroDirLiq');
   const selMes = document.getElementById('filtroMesLiq');
   if(selDir) selDir.value='';
@@ -1394,7 +1408,7 @@ function verDoc(){
   const dirKeys=Object.keys(byDir).filter(k=>byDir[k].length>0);
   if(!dirKeys.length){alert('No hay viajes para imprimir.');return false;}
 
-  const per=periodoStr();
+  const per=`${MESES[filtroMonth]} ${filtroYear}`;
 
   let html=`
     <div class="pd-title">
@@ -1474,7 +1488,21 @@ function verDoc(){
     </div>
     <p class="pd-note">Generado — Sistema de Liquidación de Viáticos — Decreto 388/07</p>`;
 
-  document.getElementById('printDoc').innerHTML=html;
+  // Mostrar en preview visible
+  const printDoc = document.getElementById('printDoc');
+  const placeholder = document.getElementById('printPlaceholder');
+  printDoc.innerHTML = html;
+  printDoc.style.display = 'block';
+  if(placeholder) placeholder.style.display = 'none';
+
+  // Copiar al shadow para impresión
+  const shadow = document.getElementById('printShadow');
+  if(shadow) shadow.innerHTML = '<div class="pdoc">' + html + '</div>';
+
+  // Guardar estado para Word
+  window._docData = { per, dirKeys, byDir, grandTotal };
+  const btnWord = document.getElementById('btnWord');
+  if(btnWord) btnWord.style.display='inline-flex';
   return true;
 }
 
@@ -1532,6 +1560,10 @@ function borrarDatosGuardados(){
   document.getElementById('agPrev').classList.add('hidden');
   document.getElementById('btnOk').disabled=true;
   document.getElementById('printDoc').innerHTML='';
+  const _sh=document.getElementById('printShadow');if(_sh)_sh.innerHTML='';
+  const _pp=document.getElementById('printPlaceholder');if(_pp)_pp.style.display='';
+  const _pd=document.getElementById('printDoc');if(_pd)_pd.style.display='none';
+  const _bw=document.getElementById('btnWord');if(_bw)_bw.style.display='none';
   document.getElementById('ultimoGuardado').textContent='—';
   limpiarCalc();
   renderDirSelect();
@@ -1769,6 +1801,263 @@ document.addEventListener('click', e => {
   if(e.target.id === 'modalOverlay') cerrarModal();
 });
 
+
+/* ══════════════════════════════════════════
+   GENERAR WORD — implementación sin dependencias externas
+══════════════════════════════════════════ */
+function xmlEsc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+function wRun(text, opts={}){
+  const rpr = [
+    opts.bold   ? '<w:b/>' : '',
+    opts.color  ? `<w:color w:val="${opts.color}"/>` : '',
+    opts.size   ? `<w:sz w:val="${opts.size}"/><w:szCs w:val="${opts.size}"/>` : '<w:sz w:val="18"/><w:szCs w:val="18"/>',
+    '<w:rFonts w:ascii="Arial" w:hAnsi="Arial" w:cs="Arial"/>',
+  ].join('');
+  return `<w:r><w:rPr>${rpr}</w:rPr><w:t xml:space="preserve">${xmlEsc(text)}</w:t></w:r>`;
+}
+
+function wPara(runs, align='center', spacing={}){
+  const sa = spacing.after  !== undefined ? spacing.after  : 80;
+  const sb = spacing.before !== undefined ? spacing.before : 0;
+  return `<w:p><w:pPr><w:jc w:val="${align}"/><w:spacing w:before="${sb}" w:after="${sa}"/></w:pPr>${runs}</w:p>`;
+}
+
+function wCell(content, opts={}){
+  const fill  = opts.fill  || 'FFFFFF';
+  const span  = opts.span  ? `<w:gridSpan w:val="${opts.span}"/>` : '';
+  const w     = opts.w     || 1000;
+  const align = opts.align || 'center';
+  return `<w:tc><w:tcPr>${span}<w:tcW w:w="${w}" w:type="dxa"/><w:shd w:val="clear" w:color="auto" w:fill="${fill}"/><w:tcMar><w:top w:w="60" w:type="dxa"/><w:left w:w="100" w:type="dxa"/><w:bottom w:w="60" w:type="dxa"/><w:right w:w="100" w:type="dxa"/></w:tcMar></w:tcPr>${wPara(content, align, {after:0})}</w:tc>`;
+}
+
+function wRow(cells){ return `<w:tr>${cells}</w:tr>`; }
+
+function wTable(rows, totalW, colWidths){
+  const grid = colWidths.map(w=>`<w:gridCol w:w="${w}"/>`).join('');
+  return `<w:tbl><w:tblPr><w:tblW w:w="${totalW}" w:type="dxa"/><w:tblBorders><w:top w:val="single" w:sz="4" w:space="0" w:color="BBBBBB"/><w:left w:val="single" w:sz="4" w:space="0" w:color="BBBBBB"/><w:bottom w:val="single" w:sz="4" w:space="0" w:color="BBBBBB"/><w:right w:val="single" w:sz="4" w:space="0" w:color="BBBBBB"/><w:insideH w:val="single" w:sz="4" w:space="0" w:color="BBBBBB"/><w:insideV w:val="single" w:sz="4" w:space="0" w:color="BBBBBB"/></w:tblBorders><w:tblLook w:val="0000"/></w:tblPr><w:tblGrid>${grid}</w:tblGrid>${rows.join('')}</w:tbl>`;
+}
+
+function spacer(after=160){ return `<w:p><w:pPr><w:spacing w:after="${after}"/></w:pPr></w:p>`; }
+
+async function generarWord(){
+  const d = window._docData;
+  if(!d){ alert('Primero generá el documento con "Ver e Imprimir".'); return; }
+
+  const TW = 9200; // ancho útil A4 con márgenes 1cm
+
+  // Columnas de la tabla de viajes
+  const CW = [1350, 800, 2600, 1350, 800, TW-1350-800-2600-1350-800];
+
+  let body = '';
+
+  // Título
+  body += wPara(wRun('SOLICITUD DE ANTICIPOS DE VIÁTICOS', {bold:true, size:24}), 'center', {after:60});
+  body += wPara(wRun(d.per, {bold:true, size:22, color:'1D4ED8'}), 'center', {after:60});
+  body += wPara(wRun('Decreto 388/07 — Provincia de Buenos Aires', {size:17, color:'666666'}), 'center', {after:280});
+
+  d.dirKeys.forEach(dir => {
+    const agsInDir = d.byDir[dir];
+    let dirTotal = 0;
+
+    // Encabezado dirección
+    body += wTable([wRow([wCell(wRun(dir, {bold:true, size:20, color:'FFFFFF'}), {fill:'1D4ED8', w:TW, align:'left'})])], TW, [TW]);
+    body += spacer(0);
+
+    agsInDir.forEach(ag => {
+      const agTotal = ag.viajes.reduce((s,v)=>s+v.total,0);
+      dirTotal += agTotal;
+      const colD = Math.floor(TW*0.25), colN = TW - Math.floor(TW*0.25);
+
+      // Info agente
+      body += wTable([
+        wRow([
+          wCell(wRun('DNI', {bold:true, size:16, color:'777777'}), {fill:'F7F8FA', w:colD, align:'left'}),
+          wCell(wRun('APELLIDO Y NOMBRE', {bold:true, size:16, color:'777777'}), {fill:'F7F8FA', w:colN, align:'left'}),
+        ]),
+        wRow([
+          wCell(wRun(ag.dni, {bold:true, size:20}), {fill:'F7F8FA', w:colD, align:'left'}),
+          wCell(wRun(ag.nom, {bold:true, size:20}), {fill:'F7F8FA', w:colN, align:'left'}),
+        ]),
+      ], TW, [colD, colN]);
+
+      // Tabla de viajes
+      const hdrs = ['SALIDA','HORA','LOCALIDAD','REGRESO','HORA','TOTAL'];
+      const headerRow = wRow(hdrs.map((h,i) => wCell(wRun(h, {bold:true, size:16}), {fill:'E8E8E8', w:CW[i]})));
+
+      const viajeRows = ag.viajes.map(v => wRow([
+        wCell(wRun(fd(v.fS), {size:18}), {w:CW[0]}),
+        wCell(wRun(v.hS,     {size:18}), {w:CW[1]}),
+        wCell(wRun(v.loc,    {size:18}), {w:CW[2], align:'left'}),
+        wCell(wRun(fd(v.fR), {size:18}), {w:CW[3]}),
+        wCell(wRun(v.hR,     {size:18}), {w:CW[4]}),
+        wCell(wRun(fmtARS(v.total), {bold:true, size:18}), {w:CW[5]}),
+      ]));
+
+      const totSpan = CW[0]+CW[1]+CW[2]+CW[3]+CW[4];
+      const totRow = wRow([
+        wCell(wRun(`Total ${ag.nom}`, {bold:true, size:18, color:'1D4ED8'}), {fill:'DBEAFE', w:totSpan, span:5, align:'right'}),
+        wCell(wRun(fmtARS(agTotal),   {bold:true, size:18, color:'1D4ED8'}), {fill:'DBEAFE', w:CW[5]}),
+      ]);
+
+      body += wTable([headerRow, ...viajeRows, totRow], TW, CW);
+      body += spacer(80);
+    });
+
+    // Total dirección
+    const tw1 = Math.floor(TW*0.68), tw2 = TW - tw1;
+    body += wTable([wRow([
+      wCell(wRun(`TOTAL ${dir}`, {bold:true, size:18, color:'FFFFFF'}), {fill:'1E3A8A', w:tw1, align:'left'}),
+      wCell(wRun(fmtARS(d.byDir[dir].reduce((s,ag)=>s+ag.viajes.reduce((sv,v)=>sv+v.total,0),0)), {bold:true, size:20, color:'FFFFFF'}), {fill:'1E3A8A', w:tw2, align:'right'}),
+    ])], TW, [tw1, tw2]);
+    body += spacer(200);
+  });
+
+  // Total general
+  if(d.dirKeys.length > 1){
+    const tw1 = Math.floor(TW*0.68), tw2 = TW - tw1;
+    body += wTable([wRow([
+      wCell(wRun(`TOTAL GENERAL — ${d.per}`, {bold:true, size:18, color:'FFFFFF'}), {fill:'111827', w:tw1, align:'left'}),
+      wCell(wRun(fmtARS(d.grandTotal), {bold:true, size:20, color:'FFFFFF'}), {fill:'111827', w:tw2, align:'right'}),
+    ])], TW, [tw1, tw2]);
+  }
+
+  // Firma
+  body += spacer(400);
+  body += wPara(wRun('_____________________________________', {size:18}), 'right', {after:40});
+  body += wPara(wRun('Autoridad Responsable', {size:17, color:'444444'}), 'right', {after:0});
+
+  // Armar el XML del documento — namespaces mínimos que Word acepta sin reparación
+  const docXml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:document xmlns:wpc="http://schemas.microsoft.com/office/word/2010/wordprocessingCanvas" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xmlns:m="http://schemas.openxmlformats.org/officeDocument/2006/math" xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" xmlns:w14="http://schemas.microsoft.com/office/word/2010/wordml" xmlns:wne="http://schemas.microsoft.com/office/word/2006/wordml" mc:Ignorable="w14"><w:body>${body}<w:sectPr><w:pgSz w:w="11906" w:h="16838"/><w:pgMar w:top="800" w:right="800" w:bottom="800" w:left="800" w:header="709" w:footer="709" w:gutter="0"/></w:sectPr></w:body></w:document>`;
+
+  const NS = 'http://schemas.openxmlformats.org/wordprocessingml/2006/main';
+  const NS_REL = 'http://schemas.openxmlformats.org/package/2006/relationships';
+  const NS_CT  = 'http://schemas.openxmlformats.org/package/2006/content-types';
+
+  const relsXml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="${NS_REL}"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/></Relationships>`;
+
+  const stylesXml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:styles xmlns:w="${NS}" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><w:docDefaults><w:rPrDefault><w:rPr><w:rFonts w:ascii="Arial" w:hAnsi="Arial" w:cs="Arial"/><w:sz w:val="18"/><w:szCs w:val="18"/><w:lang w:val="es-AR"/></w:rPr></w:rPrDefault><w:pPrDefault><w:pPr><w:spacing w:after="80" w:line="240" w:lineRule="auto"/></w:pPr></w:pPrDefault></w:docDefaults></w:styles>`;
+
+  const contentTypes = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="${NS_CT}"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/><Override PartName="/word/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.styles+xml"/></Types>`;
+
+  const rootRels = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="${NS_REL}"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/></Relationships>`;
+
+  const files = {
+    '[Content_Types].xml':          contentTypes,
+    '_rels/.rels':                  rootRels,
+    'word/document.xml':            docXml,
+    'word/_rels/document.xml.rels': relsXml,
+    'word/styles.xml':              stylesXml,
+  };
+
+  // Usar JSZip si está disponible, si no, fallback a método manual
+  try {
+    // Intentar con JSZip cargado inline
+    const blob = await crearDocxBlob(files);
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `Viaticos_${d.per.replace(/ /g,'_')}.docx`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  } catch(e) {
+    console.error(e);
+    alert('Error al generar el Word: ' + e.message);
+  }
+}
+
+// Crear DOCX Blob — implementación ZIP verificada
+async function crearDocxBlob(files){
+  const enc = new TextEncoder();
+
+  function w16(v){ const b=new Uint8Array(2); b[0]=v&0xFF; b[1]=(v>>8)&0xFF; return b; }
+  function w32(v){ const b=new Uint8Array(4); b[0]=v&0xFF; b[1]=(v>>8)&0xFF; b[2]=(v>>16)&0xFF; b[3]=(v>>24)&0xFF; return b; }
+
+  // CRC-32
+  const CT=(()=>{ const t=new Uint32Array(256); for(let i=0;i<256;i++){ let c=i; for(let j=0;j<8;j++) c=c&1?(0xEDB88320^(c>>>1)):(c>>>1); t[i]=c; } return t; })();
+  function crc32(buf){ let c=0xFFFFFFFF; for(let i=0;i<buf.length;i++) c=CT[(c^buf[i])&0xFF]^(c>>>8); return (c^0xFFFFFFFF)>>>0; }
+
+  function cat(...arrays){
+    const total=arrays.reduce((s,a)=>s+a.length,0);
+    const out=new Uint8Array(total); let off=0;
+    arrays.forEach(a=>{out.set(a,off);off+=a.length;});
+    return out;
+  }
+
+  // Procesar archivos — todos sin compresión (método 0) para máxima compatibilidad
+  const entries = [];
+  let offset = 0;
+
+  for(const [name, content] of Object.entries(files)){
+    const nb  = enc.encode(name);
+    const raw = enc.encode(content);
+    const crc = crc32(raw);
+
+    // Local file header
+    const lh = cat(
+      new Uint8Array([0x50,0x4B,0x03,0x04]),  // sig
+      w16(20),   // version needed
+      w16(0),    // flags
+      w16(0),    // method: store (0 = sin compresión, más seguro)
+      w16(0),    // mod time
+      w16(0),    // mod date
+      w32(crc),
+      w32(raw.length),   // compressed size = uncompressed (no comprimido)
+      w32(raw.length),   // uncompressed size
+      w16(nb.length),
+      w16(0),    // extra length
+      nb,
+      raw
+    );
+
+    entries.push({ nb, crc, size: raw.length, offset });
+    offset += lh.length;
+
+    // Guardamos el lh para concatenar después
+    entries[entries.length-1].lh = lh;
+  }
+
+  // Central directory
+  const cdParts = entries.map(e => cat(
+    new Uint8Array([0x50,0x4B,0x01,0x02]),  // sig
+    w16(20),   // version made by
+    w16(20),   // version needed
+    w16(0),    // flags
+    w16(0),    // method
+    w16(0),    // mod time
+    w16(0),    // mod date
+    w32(e.crc),
+    w32(e.size),
+    w32(e.size),
+    w16(e.nb.length),
+    w16(0),    // extra len
+    w16(0),    // comment len
+    w16(0),    // disk start
+    w16(0),    // internal attrs
+    w32(0),    // external attrs
+    w32(e.offset),
+    e.nb
+  ));
+
+  const cdData  = cat(...cdParts);
+  const cdStart = offset;
+
+  // End of central directory
+  const eocd = cat(
+    new Uint8Array([0x50,0x4B,0x05,0x06]),
+    w16(0), w16(0),
+    w16(entries.length),
+    w16(entries.length),
+    w32(cdData.length),
+    w32(cdStart),
+    w16(0)
+  );
+
+  return new Blob([cat(...entries.map(e=>e.lh), cdData, eocd)],
+    {type:'application/vnd.openxmlformats-officedocument.wordprocessingml.document'});
+}
 </script>
 </body>
 </html>
