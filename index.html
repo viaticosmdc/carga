@@ -1,5 +1,6 @@
 
 
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -277,7 +278,7 @@ input[type=radio]{accent-color:var(--bl)}
 
       <div class="brow">
         <button class="btn bbl" id="btnOk" onclick="confirmarAgente()" disabled>Confirmar y continuar →</button>
-        <button class="btn bgh bsm" onclick="goTab(4)">⚙ Gestionar Direcciones</button>
+        <button class="btn bgh bsm" onclick="goTab(3)">⚙ Gestionar Direcciones</button>
       </div>
     </div>
   </div>
@@ -455,7 +456,7 @@ input[type=radio]{accent-color:var(--bl)}
       <div class="brow" id="lBtns" style="display:none">
         <button class="btn bbl" onclick="goTab(1)">+ Agregar otro viaje</button>
         <button class="btn bpu" onclick="nuevoAgente()">👤 Cargar otro agente</button>
-        <button class="btn bgh" onclick="verDoc();goTab(3)">
+        <button class="btn bgh" onclick="if(verDoc())goTab(3)">
           <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
           Ver e Imprimir
         </button>
@@ -469,7 +470,7 @@ input[type=radio]{accent-color:var(--bl)}
     <div class="cb">
       <p class="st">🖨 Vista previa — Solicitud de Anticipos de Viáticos</p>
       <div class="brow no-print" style="margin-bottom:18px">
-        <button id="btnPrint" class="btn bbl" onclick="window.print()">
+        <button class="btn bbl" onclick="window.print()">
           <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
           Imprimir / Guardar PDF
         </button>
@@ -559,6 +560,7 @@ input[type=radio]{accent-color:var(--bl)}
    CONSTANTES
 ══════════════════════════════════════════ */
 const ESCALA_DEFAULT = 65140;
+let escalaActual = ESCALA_DEFAULT;
 
 const MESES = ['Enero','Febrero','Marzo','Abril','Mayo','Junio',
                'Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
@@ -683,7 +685,7 @@ function goTab(n){
     document.getElementById('tB'+i).classList.toggle('on',i===n);
   });
   if(n===2) renderLiq();
-  if(n===3) { syncPrintTab(); generarYMostrarDoc(); }
+  if(n===3){ if(!document.getElementById('printDoc').innerHTML.trim()) document.getElementById('printDoc').innerHTML='<p style="text-align:center;color:var(--tx3);padding:40px 0;font-size:13px">Usá el botón <strong>Ver e Imprimir</strong> en la pestaña Liquidación para generar el documento.</p>'; }
   if(n===4) renderDirList();
 }
 
@@ -1071,6 +1073,7 @@ function calcular(){
 }
 
 function limpiarCalc(){
+  escalaActual = parseFloat(document.getElementById('escala').value) || escalaActual;
   const hoy=new Date().toISOString().split('T')[0];
   document.getElementById('locIn').value='';
   document.getElementById('eExcl').style.display='none';
@@ -1078,7 +1081,7 @@ function limpiarCalc(){
   document.getElementById('fS').value=hoy;document.getElementById('fR').value=hoy;
   document.getElementById('hSH').value='08';document.getElementById('hSM').value='00';
   document.getElementById('hRH').value='18';document.getElementById('hRM').value='00';
-  document.getElementById('escala').value=ESCALA_DEFAULT;
+  document.getElementById('escala').value=escalaActual;
   document.getElementById('chkNinguno').checked=true;
   chkCasoEspecial();
   document.getElementById('resBox').classList.remove('on');
@@ -1337,30 +1340,14 @@ function syncPrintTab(){
   const dd = document.getElementById('printDirDisplay');
   if(pd) pd.textContent = MESES[filtroMonth] + ' ' + filtroYear;
   if(dd) dd.textContent = dirFiltro ? '📁 ' + dirFiltro : 'Todas las direcciones';
-  // Limpiar doc previo y ocultar botón imprimir — solo resetear si no hay viajes
-  // (generarYMostrarDoc lo vuelve a generar justo después)
+  // Limpiar doc previo y ocultar botón imprimir
+  document.getElementById('printDoc').innerHTML = '';
+  document.getElementById('btnPrint').style.display = 'none';
 }
 
 function generarYMostrarDoc(){
-  const dirFiltro = document.getElementById('filtroDirLiq')?.value || '';
-  const mesFiltro = document.getElementById('filtroMesLiq')?.value || '';
-  let filtroYear, filtroMonth;
-  if(mesFiltro){ const [y,m]=mesFiltro.split('-').map(Number); filtroYear=y; filtroMonth=m-1; }
-  else { filtroYear=periodo.year; filtroMonth=periodo.month; }
-  const hayViajes = agentes
-    .filter(a=>!dirFiltro||a.dir===dirFiltro)
-    .some(a=>a.viajes.some(v=>{
-      const d=new Date(v.fS+'T00:00:00');
-      return d.getFullYear()===filtroYear && d.getMonth()===filtroMonth;
-    }));
-  const btn = document.getElementById('btnPrint');
-  if(!hayViajes){
-    document.getElementById('printDoc').innerHTML='<p style="text-align:center;padding:40px;color:#8c95a6;font-size:13px">No hay viajes para el período seleccionado.<br>Cargue viajes desde <strong>Calcular Viaje</strong> y luego vuelva aquí.</p>';
-    if(btn) btn.style.display='none';
-    return;
-  }
   verDoc();
-  if(btn) btn.style.display='inline-flex';
+  document.getElementById('btnPrint').style.display = 'inline-flex';
 }
 
 /* ══════════════════════════════════════════
@@ -1392,7 +1379,8 @@ function verDoc(){
     .filter(a => a.viajes.length > 0);
 
   if(!conViajes.length){
-    return;
+    alert('No hay viajes en el período o filtro seleccionado.');
+    return false;
   }
 
   // Agrupar por dirección (mantener orden de inserción de direcciones)
@@ -1404,9 +1392,9 @@ function verDoc(){
   });
   // Filtrar dirs sin agentes
   const dirKeys=Object.keys(byDir).filter(k=>byDir[k].length>0);
-  if(!dirKeys.length){ return; }
+  if(!dirKeys.length){alert('No hay viajes para imprimir.');return false;}
 
-  const per=`${MESES[filtroMonth]} ${filtroYear}`;
+  const per=periodoStr();
 
   let html=`
     <div class="pd-title">
@@ -1487,6 +1475,7 @@ function verDoc(){
     <p class="pd-note">Generado — Sistema de Liquidación de Viáticos — Decreto 388/07</p>`;
 
   document.getElementById('printDoc').innerHTML=html;
+  return true;
 }
 
 /* ══════════════════════════════════════════
